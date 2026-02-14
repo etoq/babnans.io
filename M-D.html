@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Forensics Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .nav {
+            background: #161b22;
+            padding: 10px 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        .nav a {
+            color: #58a6ff;
+            text-decoration: none;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            padding: 20px;
+        }
+        .section-title {
+            color: #58a6ff;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+        }
+        .subsection {
+            margin-bottom: 20px;
+        }
+        .subsection-title {
+            color: #79c0ff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-size: 0.85em;
+            white-space: pre;
+        }
+        .code-block code {
+            color: #79c0ff;
+        }
+        .note {
+            background: #1f2937;
+            border-left: 3px solid #58a6ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .tip {
+            background: #1f2d1c;
+            border-left: 3px solid #3fb950;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .checklist {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .checklist-item {
+            margin: 5px 0;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🔬 Digital Forensics Analysis - Module D</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="#file">File Analysis</a>
+        <a href="#stego">Steganography</a>
+        <a href="#network">Network Forensics</a>
+        <a href="#memory">Memory Analysis</a>
+        <a href="#disk">Disk Forensics</a>
+        <a href="#mobile">Mobile Forensics</a>
+        <a href="#malware">Malware Analysis</a>
+    </div>
+    
+    <div class="container">
+        
+        <!-- FILE ANALYSIS -->
+        <div class="section" id="file">
+            <div class="section-title">📁 File System Analysis</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Type Identification</div>
+                <div class="code-block"><code># Basic file info
+file file.bin
+file -i file.bin  # MIME type
+file -z file.bin  # Look inside compressed files
+
+# Common magic bytes
+PNG: 89 50 4E 47 0D 0A 1A 0A
+JPEG: FF D8 FF E0 (or E1, E2, E8)
+GIF: 47 49 46 38 39 61 (GIF89a)
+ZIP: 50 4B 03 04
+PDF: 25 50 44 46 (%PDF)
+ELF: 7F 45 4C 46
+
+# Check for file signature mismatch
+file suspicious.jpg  # Says "PNG image data" → renamed!</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Metadata Extraction</div>
+                <div class="code-block"><code># exiftool - universal metadata reader
+exiftool image.jpg
+exiftool document.pdf
+exiftool audio.mp3
+exiftool video.mp4
+
+# Show all metadata (including duplicates)
+exiftool -a image.jpg
+
+# Extract specific tag
+exiftool -Comment image.jpg
+exiftool -GPS* image.jpg
+
+# Remove all metadata
+exiftool -all= image.jpg
+
+# Batch processing
+exiftool -r /path/to/directory/
+
+# Output to CSV
+exiftool -csv *.jpg > metadata.csv</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hex Analysis</div>
+                <div class="code-block"><code># xxd - hex dump
+xxd file.bin
+xxd file.bin | less
+xxd file.bin | head -n 20  # First 20 lines
+
+# Show only first 100 bytes
+xxd -l 100 file.bin
+
+# Search for hex pattern
+xxd file.bin | grep "flag"
+
+# hexdump
+hexdump -C file.bin
+hexdump -C file.bin | less
+
+# hexedit (interactive)
+hexedit file.bin
+# Use Tab to switch between hex/ASCII
+# Ctrl+X to save, Ctrl+C to quit
+
+# od (octal dump)
+od -A x -t x1z -v file.bin</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">String Extraction</div>
+                <div class="code-block"><code># Basic strings
+strings file.bin
+strings -n 10 file.bin  # Minimum 10 characters
+
+# Different encodings
+strings -e s file.bin   # 7-bit (ASCII)
+strings -e S file.bin   # 8-bit (ISO-8859-1)
+strings -e l file.bin   # 16-bit little-endian
+strings -e b file.bin   # 16-bit big-endian
+strings -e L file.bin   # 32-bit little-endian
+strings -e B file.bin   # 32-bit big-endian
+
+# Search for specific patterns
+strings file.bin | grep -i "password"
+strings file.bin | grep -i "flag"
+strings file.bin | grep -E "http|ftp"
+strings file.bin | grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  # IPs
+
+# Output with addresses
+strings -t x file.bin  # Hex addresses
+strings -t d file.bin  # Decimal addresses</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Carving</div>
+                <div class="code-block"><code># binwalk - firmware analysis
+binwalk file.bin
+binwalk -e file.bin  # Extract
+binwalk --dd='.*' file.bin  # Extract all
+binwalk -B file.bin  # Signature scan only
+
+# foremost - file carving
+foremost file.bin
+foremost -i file.bin -o output/
+foremost -t jpeg,png,pdf -i file.bin
+
+# scalpel (faster than foremost)
+scalpel file.bin -o output/
+
+# photorec (GUI available)
+photorec file.bin
+
+# dd - manual extraction
+# Extract 1000 bytes starting at offset 512
+dd if=file.bin of=extracted.bin bs=1 skip=512 count=1000</code></div>
+            </div>
+        </div>
+        
+        <!-- STEGANOGRAPHY -->
+        <div class="section" id="stego">
+            <div class="section-title">🖼️ Steganography Analysis</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Image Steganography</div>
+                <div class="code-block"><code># steghide - hide/extract from images
+steghide info image.jpg
+steghide extract -sf image.jpg
+steghide extract -sf image.jpg -p password
+
+# stegseek - brute force steghide
+stegseek image.jpg
+stegseek image.jpg rockyou.txt
+stegseek image.jpg rockyou.txt -xf output.txt
+
+# zsteg - PNG/BMP analysis
+zsteg image.png
+zsteg -a image.png  # All methods
+zsteg -E image.png  # All extractions
+
+# stegsolve (Java GUI tool)
+# Visual analysis, color filters, LSB analysis
+java -jar stegsolve.jar
+
+# LSB steganography
+# Python script to extract LSB
+python3 -c "
+from PIL import Image
+img = Image.open('image.png')
+pixels = list(img.getdata())
+bits = ''.join([str(p[0] & 1) for p in pixels])
+print(''.join([chr(int(bits[i:i+8], 2)) for i in range(0, len(bits), 8)]))
+"</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Audio Steganography</div>
+                <div class="code-block"><code># Audacity - visual analysis
+audacity audio.mp3
+
+# Check spectrogram
+# Analyze → Plot Spectrum
+# View → Spectrogram
+
+# sox - audio tool
+sox audio.wav -n spectrogram
+
+# DeepSound - Windows tool for audio stego
+# https://jpinsoft.net/deepsound/
+
+# Check metadata
+exiftool audio.mp3
+strings audio.mp3</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Hidden Data in Files</div>
+                <div class="code-block"><code># Append data after EOF
+cat file.jpg  # View as text, look for extra data
+tail file.jpg
+
+# Split combined files
+dd if=combined.jpg of=part1.jpg bs=1 count=50000
+dd if=combined.jpg of=part2.zip bs=1 skip=50000
+
+# Check for trailing data
+binwalk file.jpg
+
+# Extract ZIP from image
+unzip file.jpg
+
+# Extract RAR from image
+unrar x file.jpg</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Stego Workflow:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>1. Check file type and metadata (exiftool)</li>
+                    <li>2. Look for hidden files (binwalk)</li>
+                    <li>3. Try steghide without password</li>
+                    <li>4. Visual analysis (stegsolve, Audacity)</li>
+                    <li>5. LSB analysis (zsteg)</li>
+                    <li>6. Brute force if needed (stegseek)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- NETWORK FORENSICS -->
+        <div class="section" id="network">
+            <div class="section-title">🌐 Network Traffic Analysis (PCAP)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Wireshark (GUI)</div>
+                <div class="code-block"><code>wireshark capture.pcap
+
+# Display Filters
+http.request
+http.request.method == "POST"
+http.request.uri contains "admin"
+http.request.uri contains "password"
+http contains "flag"
+
+ftp
+ftp.request.command == "USER"
+ftp.request.command == "PASS"
+ftp-data
+
+smtp
+smtp.req.command
+smtp contains "password"
+
+dns
+dns.qry.name contains "google"
+
+tcp.port == 80
+tcp.port == 443
+tcp.stream eq 0
+
+ip.addr == 192.168.1.100
+ip.src == 192.168.1.100
+ip.dst == 192.168.1.100
+
+# Follow TCP Stream
+Right-click packet → Follow → TCP Stream
+# Switch between directions with arrows
+
+# Extract HTTP Objects
+File → Export Objects → HTTP
+# Save all files
+
+# Statistics
+Statistics → Protocol Hierarchy
+Statistics → Conversations
+Statistics → Endpoints
+Statistics → HTTP → Requests</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">tshark (CLI)</div>
+                <div class="code-block"><code># Basic usage
+tshark -r capture.pcap
+
+# Display filter
+tshark -r capture.pcap -Y "http.request"
+tshark -r capture.pcap -Y "http.request.method==POST"
+tshark -r capture.pcap -Y "ftp"
+
+# Extract specific fields
+tshark -r capture.pcap -T fields -e http.request.uri
+tshark -r capture.pcap -T fields -e http.request.method -e http.request.uri
+tshark -r capture.pcap -T fields -e http.file_data
+
+# FTP credentials
+tshark -r capture.pcap -Y "ftp.request.command==USER" -T fields -e ftp.request.arg
+tshark -r capture.pcap -Y "ftp.request.command==PASS" -T fields -e ftp.request.arg
+
+# HTTP POST data
+tshark -r capture.pcap -Y "http.request.method==POST" -T fields -e http.file_data
+
+# Extract HTTP objects
+tshark -r capture.pcap --export-objects http,output/
+
+# Statistics
+tshark -r capture.pcap -q -z conv,ip
+tshark -r capture.pcap -q -z http,tree
+tshark -r capture.pcap -q -z io,phs
+
+# DNS queries
+tshark -r capture.pcap -Y "dns.qry.name" -T fields -e dns.qry.name</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">tcpdump</div>
+                <div class="code-block"><code># Read PCAP
+tcpdump -r capture.pcap
+tcpdump -r capture.pcap -A  # ASCII output
+tcpdump -r capture.pcap -X  # Hex + ASCII
+
+# Filters
+tcpdump -r capture.pcap 'port 80'
+tcpdump -r capture.pcap 'port 443'
+tcpdump -r capture.pcap 'host 192.168.1.100'
+tcpdump -r capture.pcap 'src 192.168.1.100'
+tcpdump -r capture.pcap 'dst 192.168.1.100'
+
+# Protocol filters
+tcpdump -r capture.pcap 'tcp'
+tcpdump -r capture.pcap 'udp'
+tcpdump -r capture.pcap 'icmp'
+
+# Combination
+tcpdump -r capture.pcap 'tcp and port 80'
+tcpdump -r capture.pcap 'host 192.168.1.100 and port 80'
+
+# SYN packets
+tcpdump -r capture.pcap 'tcp[13] & 2 != 0'
+
+# Write filtered to new file
+tcpdump -r capture.pcap 'port 80' -w http.pcap</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">NetworkMiner (GUI)</div>
+                <div class="code-block"><code># Open in NetworkMiner
+# Automatically extracts:
+- Files (images, documents, executables)
+- Credentials (FTP, HTTP, SMTP)
+- Sessions
+- DNS queries
+- Hosts
+- Messages
+
+# Great for quick analysis and file extraction</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Common CTF Patterns</div>
+                <div class="code-block"><code># Look for:
+1. FTP credentials
+   Filter: ftp.request.command
+
+2. HTTP POST data (login forms)
+   Filter: http.request.method == "POST"
+
+3. Files transferred
+   File → Export Objects
+
+4. Suspicious domains
+   Filter: dns.qry.name
+
+5. Encoded/encrypted data
+   Look for Base64, hex strings in HTTP
+
+6. Uncommon ports
+   Statistics → Conversations
+
+7. TCP streams with "flag"
+   Filter: tcp contains "flag"
+
+8. ICMP data exfiltration
+   Filter: icmp</code></div>
+            </div>
+            
+            <div class="checklist">
+                <strong>✅ PCAP Analysis Checklist:</strong>
+                <div class="checklist-item">□ Identify protocols used</div>
+                <div class="checklist-item">□ Extract all HTTP objects</div>
+                <div class="checklist-item">□ Look for cleartext credentials (FTP, HTTP, Telnet)</div>
+                <div class="checklist-item">□ Follow TCP streams</div>
+                <div class="checklist-item">□ Check DNS queries for suspicious domains</div>
+                <div class="checklist-item">□ Look for unusual port usage</div>
+                <div class="checklist-item">□ Search for "flag", "password" strings</div>
+            </div>
+        </div>
+        
+        <!-- MEMORY FORENSICS -->
+        <div class="section" id="memory">
+            <div class="section-title">💾 Memory Forensics (Volatility)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Profile Identification</div>
+                <div class="code-block"><code># Determine OS profile
+volatility -f memory.dump imageinfo
+volatility -f memory.dump kdbgscan
+
+# Common profiles
+Win7SP1x64
+Win7SP1x86
+Win10x64_19041
+WinXPSP2x86
+Linux (various)
+
+# Set profile for all commands
+VOL="volatility -f memory.dump --profile=Win7SP1x64"</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Process Analysis</div>
+                <div class="code-block"><code># List processes
+$VOL pslist
+$VOL pstree
+$VOL psscan  # Find hidden processes
+
+# Process details
+$VOL psxview  # Compare different methods
+$VOL dlllist -p PID  # List DLLs
+$VOL handles -p PID  # List handles
+
+# Command line
+$VOL cmdline
+$VOL cmdline -p PID
+$VOL cmdscan  # Command history
+$VOL consoles  # Console output
+
+# Dump process
+$VOL procdump -p PID --dump-dir=output/
+$VOL memdump -p PID --dump-dir=output/</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Network Connections</div>
+                <div class="code-block"><code># Network connections
+$VOL netscan
+$VOL netscan | grep ESTABLISHED
+$VOL netscan | grep LISTENING
+
+# For older Windows
+$VOL connections  # Active connections
+$VOL connscan     # Scan for connections
+$VOL sockets      # Open sockets
+$VOL sockscan     # Scan for sockets</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File System</div>
+                <div class="code-block"><code># Scan for files
+$VOL filescan
+$VOL filescan | grep -i "password"
+$VOL filescan | grep -i "flag"
+$VOL filescan | grep ".txt"
+
+# Dump file
+$VOL dumpfiles -Q 0x000000001e8b6f20 --dump-dir=output/
+$VOL dumpfiles -n --dump-dir=output/  # Dump all cached files
+
+# MFT (Master File Table)
+$VOL mftparser > mft.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Registry Analysis</div>
+                <div class="code-block"><code># List registry hives
+$VOL hivelist
+
+# Print registry key
+$VOL printkey
+$VOL printkey -K "Software\Microsoft\Windows\CurrentVersion\Run"
+$VOL printkey -K "SAM\Domains\Account\Users"
+
+# User information
+$VOL userassist
+$VOL userhandles
+
+# Recent files
+$VOL shellbags</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Password Extraction</div>
+                <div class="code-block"><code># Dump password hashes
+$VOL hashdump > hashes.txt
+
+# LSA secrets
+$VOL lsadump
+
+# Cached credentials
+$VOL cachedump
+
+# Crack with john
+john --format=NT hashes.txt --wordlist=rockyou.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Malware Detection</div>
+                <div class="code-block"><code># Find injected code
+$VOL malfind
+$VOL malfind --dump-dir=output/
+
+# Check for hidden processes
+$VOL psxview
+
+# Check hooks
+$VOL apihooks
+
+# Driver modules
+$VOL modules
+$VOL modscan
+$VOL driverscan
+
+# Mutexes (malware often uses)
+$VOL mutantscan</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Timeline Analysis</div>
+                <div class="code-block"><code># Create timeline
+$VOL timeliner --output-file=timeline.txt
+
+# ShimCache (Application Compatibility Cache)
+$VOL shimcache</code></div>
+            </div>
+        </div>
+        
+        <!-- DISK FORENSICS -->
+        <div class="section" id="disk">
+            <div class="section-title">💿 Disk Forensics</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Autopsy (GUI)</div>
+                <div class="code-block"><code># Open Autopsy
+autopsy
+
+# Create New Case
+1. New Case
+2. Add Data Source (disk image, folder)
+3. Configure Ingest Modules
+4. Wait for analysis
+
+# Features:
+- File System analysis
+- Deleted file recovery
+- Keyword search
+- Timeline analysis
+- Hash database matching
+- Web artifacts
+- Email analysis</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">The Sleuth Kit (CLI)</div>
+                <div class="code-block"><code># Image info
+mmls disk.img  # Partition table
+fsstat disk.img  # File system info
+fls disk.img  # List files
+icat disk.img INODE > file  # Extract file by inode
+
+# Timeline
+fls -r -m / disk.img > timeline.body
+mactime -b timeline.body > timeline.csv
+
+# Search
+blkcat disk.img BLOCK  # Dump block
+blkls disk.img  # List unallocated blocks</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Recovery</div>
+                <div class="code-block"><code># PhotoRec (CLI/GUI)
+photorec disk.img
+
+# TestDisk (partition recovery)
+testdisk disk.img
+
+# extundelete (ext3/ext4)
+extundelete /dev/sda1 --restore-all
+
+# foremost
+foremost -i disk.img -o output/</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Mount Disk Image</div>
+                <div class="code-block"><code># Mount raw image
+mkdir /mnt/evidence
+mount -o ro,loop disk.img /mnt/evidence
+
+# Mount with offset (if partitioned)
+fdisk -l disk.img  # Find start sector
+mount -o ro,loop,offset=$((START_SECTOR*512)) disk.img /mnt/evidence
+
+# EWF (Expert Witness Format) - E01 files
+ewfmount image.E01 /mnt/ewf/
+mount -o ro,loop /mnt/ewf/ewf1 /mnt/evidence/</code></div>
+            </div>
+        </div>
+        
+        <!-- ARCHIVE CRACKING -->
+        <div class="section">
+            <div class="section-title">🔒 Password-Protected Archives</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">ZIP Files</div>
+                <div class="code-block"><code># fcrackzip
+fcrackzip -u -D -p rockyou.txt file.zip
+fcrackzip -b -c 'aA1!' -l 1-8 file.zip  # Brute force
+
+# zip2john + john
+zip2john file.zip > hash.txt
+john hash.txt --wordlist=rockyou.txt
+john --show hash.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">RAR Files</div>
+                <div class="code-block"><code># rar2john + john
+rar2john file.rar > hash.txt
+john hash.txt --wordlist=rockyou.txt
+john --show hash.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">7z Files</div>
+                <div class="code-block"><code># 7z2john + john
+7z2john file.7z > hash.txt
+john hash.txt --wordlist=rockyou.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">PDF Files</div>
+                <div class="code-block"><code># pdf2john + john
+pdf2john file.pdf > hash.txt
+john hash.txt --wordlist=rockyou.txt
+
+# pdfcrack
+pdfcrack -f file.pdf -w rockyou.txt</code></div>
+            </div>
+        </div>
+        
+        <!-- QUICK REFERENCE -->
+        <div class="section">
+            <div class="section-title">🚀 Quick Reference</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">First Steps Checklist</div>
+                <div class="code-block"><code># 1. File Type
+file suspicious_file
+
+# 2. Metadata
+exiftool suspicious_file
+
+# 3. Strings
+strings suspicious_file | less
+
+# 4. Hex Dump
+xxd suspicious_file | head -n 20
+
+# 5. Hidden Files
+binwalk suspicious_file
+
+# 6. Steganography (if image)
+steghide info suspicious_file.jpg
+zsteg suspicious_file.png (if PNG)
+
+# 7. If PCAP
+wireshark capture.pcap
+
+# 8. If Memory Dump
+volatility -f memory.dump imageinfo</code></div>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Pro Tips:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <li>Always check file signature vs extension</li>
+                    <li>Look at the END of files (extra data)</li>
+                    <li>Try different string encodings</li>
+                    <li>Check metadata for GPS, timestamps, software</li>
+                    <li>Follow TCP streams in PCAP files</li>
+                    <li>Don't forget about NULL bytes in filenames</li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

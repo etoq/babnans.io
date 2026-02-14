@@ -37,6 +37,9 @@ th {
     background-color: #161b22 !important;
 }
 </style>
+
+
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>DOCKER + PRP ИНТЕРФЕЙС</title></head><body><article id="3065e03f-0cac-8000-95ae-ce0e01bd86e5" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🐳</span></div><h1 class="page-title" dir="auto"><strong>DOCKER + PRP ИНТЕРФЕЙС</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8030-bb59-c02b99996021" class=""><strong>ШАГ 1: НАСТРОИТЬ PRP (ПАРАЛЛЕЛЬНАЯ РЕЗЕРВНАЯ СЕТЬ)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8081-9099-d1aa861bf05d" class=""><strong>Зачем:</strong> Объединить 2 сетевых интерфейса для отказоустойчивости.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800c-a389-d052f02d5298" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># На COD-DOCKER
 apt install -y bridge-utils ifenslave
 

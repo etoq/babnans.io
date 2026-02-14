@@ -37,6 +37,9 @@ th {
     background-color: #161b22 !important;
 }
 </style>
+
+
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>2</title></head><body><article id="3075e03f-0cac-80ab-a775-d5abc9e60a2e" class="page sans"><header><h1 class="page-title" dir="auto">2</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-8123-8d3f-d3297ed23bac" class="">1. SSH Hardening</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8145-8e6d-d81f3c9342fc" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">useradd -m -s /bin/bash sshuser
 echo &quot;sshuser:P@ssw0rd&quot; | chpasswd
 echo &quot;PermitRootLogin no&quot; &gt;&gt; /etc/ssh/sshd_config

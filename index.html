@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Configuration - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .list {
+            list-style: none;
+        }
+        .list-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+        .list-item:hover {
+            border-color: #58a6ff;
+        }
+        .list-item a {
+            display: block;
+            padding: 16px;
+            color: inherit;
+            text-decoration: none;
+        }
+        .title {
+            color: #58a6ff;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        .meta {
+            color: #8b949e;
+            font-size: 0.85em;
+        }
+        .tag {
+            display: inline-block;
+            background: #1f6feb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Server Configuration Documentation</h1>
+    </div>
+    
+    <div class="container">
+        <ul class="list">
+            <li class="list-item">
+                <a href="pages/full-crib-m-b.html">
+                    <div class="title">Complete Configuration Guide</div>
+                    <div class="meta">
+                        <span class="tag">Full</span>
+                        All sections in one document
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.1.html">
+                    <div class="title">SSH Authentication Configuration</div>
+                    <div class="meta">
+                        <span class="tag">security</span>
+                        <span class="tag">ssh</span>
+                        fail2ban, hardening, audit
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.2.html">
+                    <div class="title">VPN Tunnel Setup Guide</div>
+                    <div class="meta">
+                        <span class="tag">network</span>
+                        <span class="tag">vpn</span>
+                        OpenVPN, Wireguard configuration
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.3.html">
+                    <div class="title">OSPF Routing Protocol</div>
+                    <div class="meta">
+                        <span class="tag">routing</span>
+                        Dynamic routing configuration
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.4.html">
+                    <div class="title">NFTables Firewall Rules</div>
+                    <div class="meta">
+                        <span class="tag">firewall</span>
+                        <span class="tag">nat</span>
+                        Packet filtering and NAT
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.5.html">
+                    <div class="title">Web Server Deployment</div>
+                    <div class="meta">
+                        <span class="tag">nginx</span>
+                        <span class="tag">http</span>
+                        HTTPS configuration
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.6.html">
+                    <div class="title">Directory Services Setup</div>
+                    <div class="meta">
+                        <span class="tag">ldap</span>
+                        <span class="tag">auth</span>
+                        User management infrastructure
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.7.html">
+                    <div class="title">NFS File Sharing</div>
+                    <div class="meta">
+                        <span class="tag">storage</span>
+                        Network filesystem configuration
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.8.html">
+                    <div class="title">SSL Certificate Management</div>
+                    <div class="meta">
+                        <span class="tag">ssl</span>
+                        <span class="tag">tls</span>
+                        Certificate deployment
+                    </div>
+                </a>
+            </li>
+            
+            <li class="list-item">
+                <a href="pages/2.9.html">
+                    <div class="title">Container Infrastructure</div>
+                    <div class="meta">
+                        <span class="tag">docker</span>
+                        Containerization and security
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

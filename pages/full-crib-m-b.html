@@ -1,0 +1,224 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>МОДУЛЬ B</title></head><body><article id="3065e03f-0cac-800e-8bea-c5d586cdd265" class="page sans"><header><h1 class="page-title" dir="auto">МОДУЛЬ B</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80ec-9f50-c4243cabe89a" class=""><strong>⏱️ ТАЙМИНГ НА ЧЕМПИОНАТЕ (4 ЧАСА)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80e4-be1e-e03ab9334f0b" class=""><strong>РЕКОМЕНДОВАННЫЙ ПЛАН:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8060-bb13-e0aa29064739" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">00:00-00:10 (10 мин) — Изучить задание, топологию, записать IP
+00:10-00:25 (15 мин) — SSH + Fail2ban на всех серверах
+00:25-00:50 (25 мин) — FreeIPA: создать 71 пользователя
+00:50-01:10 (20 мин) — Парольная политика + Petya + backup
+01:10-01:40 (30 мин) — OpenVPN между роутерами
+01:40-02:00 (20 мин) — OSPF
+02:00-02:30 (30 мин) — HTTPS веб-серверы
+02:30-02:50 (20 мин) — NFS + PC1 в домен
+02:50-03:10 (20 мин) — NFTables
+03:10-03:30 (20 мин) — Wireguard + автопереключение
+03:30-03:50 (20 мин) — Docker + поиск уязвимостей
+03:50-04:00 (10 мин) — Проверка, черновик</code></pre></div><div style="display:contents" dir="auto"><h3 id="3065e03f-0cac-80a3-ab97-ccba59d123d2" class=""><strong>1️⃣ ЗАЧЕМ ТОПОЛОГИЯ, ЕСЛИ ТЫ ВСЁ ЗНАЕШЬ?</strong></h3></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80eb-8f3c-e7465f7544bd" class=""><strong>РЕАЛЬНОСТЬ НА ЧЕМПИОНАТЕ:</strong></p></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8051-a61c-f015555a98ad" class=""><strong>ТОПОЛОГИЯ БУДЕТ ДРУГАЯ!</strong></p></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8002-8c30-df1a9ef2c1fd" class=""><strong>Что я имею в виду:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80f7-b253-cb20e9f2afa7" class="bulleted-list"><li style="list-style-type:disc">IP-адреса могут быть <strong>другими</strong> (не 192.168.1.10, а 172.16.5.10)</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80ce-8b58-d4095dd9c006" class="bulleted-list"><li style="list-style-type:disc">Названия серверов могут быть <strong>другими</strong> (не MAIN-DC1, а SRV-IPA-01)</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8099-adec-fe007cd0b4af" class="bulleted-list"><li style="list-style-type:disc">Количество серверов может <strong>отличаться</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-803b-a3c7-fa2733eda2b3" class="bulleted-list"><li style="list-style-type:disc">Связи между ними могут быть <strong>другими</strong></li></ul></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8099-9fc7-eae2a3adcb8d" class=""><strong>Поэтому тебе дадут схему, чтобы ты понял:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8079-8580-e492507cfdcf" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">Какой сервер где находится?
+Какие IP-адреса использовать?
+Через какой роутер идёт трафик?</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8019-988b-ed7992eab986"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80d5-9adc-c028cdc9d2ce" class=""><strong>ПРИМЕР:</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8049-b82e-cae7cabdbd53" class=""><strong>Ты выучил:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800a-8017-cb5f6905a30d" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">MAIN-DC1: 192.168.1.10
+PC1: 192.168.3.20</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8054-82cd-d561ecf35173" class=""><strong>На чемпионате может быть:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-801d-993c-d8c6ebb46e19" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">DC-PRIMARY: 10.50.1.5
+CLIENT-01: 10.50.3.100</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80a6-9ac8-ce3e71e066ff" class=""><strong>Топология покажет тебе настоящие адреса!</strong></p></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8027-a67c-d559558edd6c" class="">
+</p></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-800c-9c25-e44f9ff932aa"/></div><div style="display:contents" dir="auto"><h1 id="3065e03f-0cac-8061-9caa-cfe3d197eb64" class=""><strong>📄 ОТЧЁТНОСТЬ</strong></h1></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80b3-91a7-e2a569bf72c6" class=""><strong>ЧТО НУЖНО ОСТАВИТЬ:</strong></p></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8071-bff9-fcf22a070d52" class=""><strong>1. Черновик (бумажный лист)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8097-bd70-dd4f02e5016a" class=""><strong>Что писать:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-807a-abae-db939a51bff0" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">=== МОДУЛЬ B: Защита инфраструктуры ===
+
+УЧЁТНЫЕ ДАННЫЕ:
+- SSH пользователь: sshuser / P@ssw0rd
+- FreeIPA admin: admin / &lt;пароль из задания&gt;
+- Backup пароль: BackupPa$$
+
+IP-АДРЕСА (если изменил):
+- MAIN-DC1: 192.168.1.10
+- COD-WEB: 10.10.20.100
+
+ВАЖНЫЕ ФАЙЛЫ:
+- Backup: /mnt/backup-user.backup
+- Инструкция восстановления: ~/BACKUP_RESTORE.txt
+- Сертификаты CA: /etc/ca/
+
+VPN:
+- OpenVPN порт: 1194
+- Wireguard порт: 51820
+
+УЯЗВИМОСТИ (найденные):
+ПЛК сервер:
+1. Открытый порт 8080 без пароля
+2. Docker запущен от root
+3. Nginx версия устаревшая
+
+CI/CD скрипты:
+1. Пароли в открытом виде в скрипте deploy.sh
+2. Нет проверки ошибок (нет set -e)
+3. Использование eval с пользовательским вводом
+4. Sudo без ограничений</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-805c-909f-d88a7d472129"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80d7-a071-eb189afec80a" class=""><strong>2. Инструкция по восстановлению backup</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-805b-94a0-c62f41142088" class=""><strong>Файл:</strong> <code>~/BACKUP_RESTORE.txt</code> на MAIN-DC1</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8024-86a6-cfa55d4eb6de" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">=== ИНСТРУКЦИЯ ПО ВОССТАНОВЛЕНИЮ BACKUP FreeIPA ===
+
+Пароль архива: BackupPa$$
+
+Шаг 1: Расшифровать
+openssl enc -aes-256-cbc -d -pbkdf2 -in /mnt/backup-user.backup -out backup.tar.gz -pass pass:&quot;BackupPa$$&quot;
+
+Шаг 2: Распаковать
+tar -xzf backup.tar.gz
+
+Шаг 3: Восстановить
+ldapadd -x -D &quot;cn=Directory Manager&quot; -W -f ldap_*.ldif
+
+Выполнять на MAIN-DC1 от root</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-809d-96c5-cdc2de25da15"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80d6-8159-e08ff8dac6cb" class=""><strong>3. Комментарии в конфигах</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ae-a5ed-cb9d46bff13f" class=""><strong>Если делаешь что-то нестандартное — оставь комментарий:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8004-8d1b-d4de72100e47" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># В /etc/openvpn/server.conf
+# Порт изменён на 1195 из-за конфликта с другим сервисом
+port 1195</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8090-9ccc-fbdd502df83d" class="">
+</p></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-80e2-9fc7-d4d6228eca82"/></div><div style="display:contents" dir="auto"><h1 id="3065e03f-0cac-804c-bab5-f2abd9747b33" class=""><strong>🗂️ ПОЛНАЯ ШПАРГАЛКА: КОМАНДЫ</strong></h1></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80b7-a26f-c6bb5d90ccd5" class=""><strong>1️⃣ SSH + FAIL2BAN + AUDITD</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8049-a983-d3c99dfcdf13" class=""><strong>Создать пользователя SSH:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-807f-b949-c33e2cde2486" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">useradd -m -s /bin/bash sshuser
+passwd sshuser</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8059-b92f-eb0ab482b8b3" class=""><strong>Настроить SSH:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-803c-a449-de21bf375a32" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">echo &quot;PermitRootLogin no&quot; &gt;&gt; /etc/ssh/sshd_config
+echo &quot;AllowUsers sshuser&quot; &gt;&gt; /etc/ssh/sshd_config
+systemctl restart sshd</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8057-9e83-cd0967f38f40" class=""><strong>Fail2ban:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80e3-ad6a-c1cd03cf9623" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y fail2ban
+
+cat &gt; /etc/fail2ban/jail.local &lt;&lt; &#x27;EOF&#x27;
+[DEFAULT]
+bantime = 1m
+maxretry = 2
+
+[sshd]
+enabled = true
+EOF
+
+systemctl enable fail2ban
+systemctl restart fail2ban</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80e0-a39a-faff0a36c0e2" class=""><strong>Auditd:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800e-a541-d76a29f59194" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y auditd
+
+cat &gt; /etc/audit/rules.d/ssh.rules &lt;&lt; &#x27;EOF&#x27;
+-w /usr/sbin/sshd -p x -k ssh_exec
+-w /etc/ssh/sshd_config -p wa -k ssh_config
+EOF
+
+systemctl restart auditd</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-80cf-92cf-cd79ed49b697"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80b6-85ed-f5342205c16d" class=""><strong>2️⃣ VPN (КРАТКО)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ec-b4ce-cddb5bff69b3" class=""><strong>OpenVPN сервер (COD-RTR):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-806b-9f8a-c743465a5305" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y openvpn easy-rsa
+make-cadir ~/openvpn-ca
+cd ~/openvpn-ca
+./easyrsa init-pki
+./easyrsa build-ca nopass
+./easyrsa gen-req server nopass
+./easyrsa sign-req server server
+./easyrsa gen-dh
+openvpn --genkey secret ta.key</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80f4-b4bb-ef8645f1015a" class=""><strong>Конфиг </strong><code><strong>/etc/openvpn/server.conf</strong></code><strong>:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80fd-a3b2-fa2c7af8f050" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">port 1194
+proto udp
+dev tun
+ca /root/openvpn-ca/pki/ca.crt
+cert /root/openvpn-ca/pki/issued/server.crt
+key /root/openvpn-ca/pki/private/server.key
+dh /root/openvpn-ca/pki/dh.pem
+tls-auth /root/openvpn-ca/ta.key 0
+server 10.8.0.0 255.255.255.0
+push &quot;route 10.10.10.0 255.255.255.0&quot;
+push &quot;route 10.10.20.0 255.255.255.0&quot;
+cipher AES-256-GCM
+persist-key
+persist-tun</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8025-a155-c074681e538a" class=""><strong>Wireguard (резервный):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80ab-92e4-c83abb9d94ef" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y wireguard
+cd /etc/wireguard
+wg genkey | tee private.key | wg pubkey &gt; public.key</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-806a-b301-fae6d6079679" class=""><strong>Конфиг </strong><code><strong>/etc/wireguard/wg0.conf</strong></code><strong>:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80a2-b2cc-d17cd84931d6" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">[Interface]
+Address = 10.9.0.1/24
+ListenPort = 51820
+PrivateKey = &lt;содержимое private.key&gt;
+
+[Peer]
+PublicKey = &lt;публичный ключ клиента&gt;
+AllowedIPs = 10.9.0.2/32</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80bf-bc0e-cd26ae451d05" class="">
+</p></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-801e-b914-f073fb754628"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80bb-b1ec-e74c07162985" class=""><strong>3️⃣ FreeIPA</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8029-bff1-e52e80265584" class=""><strong>Войти:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800c-aa7a-ea43c52dc4b8" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kinit admin</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8014-a21f-e01ba1c8c440" class=""><strong>Создать группы:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800a-972d-dd418c9c1166" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ipa group-add Administrators
+ipa group-add Worker
+ipa group-add TopManager</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-800d-a9e0-d054c8e3698f" class=""><strong>Создать 71 пользователя (скрипт):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80d3-8685-cf7b1e882660" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">for i in {1..40}; do
+  echo -e &quot;P@ssw0rdAdmin\nP@ssw0rdAdmin&quot; | ipa user-add user$i --first=User --last=$i --password 2&gt;/dev/null
+  ipa group-add-member Administrators --users=user$i 2&gt;/dev/null
+done
+
+for i in {41..80}; do
+  echo -e &quot;P@ssw0rdWorker\nP@ssw0rdWorker&quot; | ipa user-add user$i --first=User --last=$i --password 2&gt;/dev/null
+  ipa group-add-member Worker --users=user$i 2&gt;/dev/null
+done
+
+for i in {100..130}; do
+  echo -e &quot;P@ssw0rdTop\nP@ssw0rdTop&quot; | ipa user-add superuser$i --first=SuperUser --last=$i --password 2&gt;/dev/null
+  ipa group-add-member TopManager --users=superuser$i 2&gt;/dev/null
+done</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-809f-a841-fa3c4b14f06b" class=""><strong>Парольная политика:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-809e-8f9d-e0bfae8b7eb7" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ipa pwpolicy-mod --minlength=10 --minclasses=3 --history=4 --maxlife=31 --lockouttime=900 --maxfail=3</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80fb-af39-d181b482de10" class=""><strong>Пользователь Petya:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80fd-821e-f30df444d06a" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">echo -e &quot;Pa\$\$w0rd2026-2027\nPa\$\$w0rd2026-2027&quot; | ipa user-add petya --first=Petya --last=Petrov --password
+ipa user-mod petya --principal-expiration=20260515000000Z</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80c9-8b6b-f2a1c627274e" class=""><strong>Backup:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8068-8ee2-f2180f648eed" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ldapsearch -x -D &quot;cn=Directory Manager&quot; -w &quot;&lt;пароль&gt;&quot; -b &quot;dc=reaskills,dc=cyber&quot; -LLL &gt; /tmp/backup.ldif
+tar -czf /tmp/backup.tar.gz /tmp/backup.ldif
+openssl enc -aes-256-cbc -salt -pbkdf2 -in /tmp/backup.tar.gz -out /mnt/backup-user.backup -pass pass:&quot;BackupPa\$\$&quot;</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-80c8-b699-d0858480bf3b"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8049-9874-caef4bafad0c" class=""><strong>4️⃣ OSPF</strong></h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80a1-a5bb-d31cc13ab002" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y frr
+sed -i &#x27;s/ospfd=no/ospfd=yes/&#x27; /etc/frr/daemons
+
+vtysh
+configure terminal
+router ospf
+  ospf router-id 1.1.1.1
+  network 10.8.0.0/24 area 0
+  network 10.10.10.0/24 area 0
+exit
+interface tun0
+  ip ospf authentication message-digest
+  ip ospf message-digest-key 1 md5 secret_key
+exit
+exit
+write memory
+exit
+
+systemctl restart frr</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8080-ba29-f90f0940a45b"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-808f-af9b-fe20ac0e36d8" class=""><strong>5️⃣ NFTABLES</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8036-b986-d7ac0cecc640" class=""><strong>NAT:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80bc-95a3-c11e5f747be7" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nftables
+nft add table ip nat
+nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }
+nft add rule ip nat postrouting oifname &quot;eth0&quot; masquerade</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ef-914d-f1882c6f1709" class=""><strong>Rate limit:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80b9-9c11-faff412c4755" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">nft add table inet filter
+nft add chain inet filter input { type filter hook input priority 0 \; policy drop \; }
+nft add rule inet filter input ct state established,related accept
+nft add rule inet filter input iif lo accept
+nft add rule inet filter input tcp dport 22 accept
+nft add rule inet filter input limit rate 100/second accept</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8063-ae20-e15ec98d7df0" class=""><strong>Сохранить:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80fb-90f5-d6a1104f3078" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">nft list ruleset &gt; /etc/nftables.conf
+systemctl enable nftables</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8012-bda4-eb61d10dfc1e"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-803b-9483-de432419fe83" class=""><strong>6️⃣ NFS</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80e7-977f-ff4fc54e0594" class=""><strong>Сервер (MAIN-STORAGE):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80d4-8502-f1574c1e8739" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nfs-kernel-server
+mkdir -p /data
+chmod 777 /data
+echo &quot;/data 192.168.3.0/24(rw,sync,no_root_squash)&quot; &gt;&gt; /etc/exports
+exportfs -ra
+systemctl restart nfs-kernel-server</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-801b-a106-fed2b37df332" class=""><strong>Клиент (PC1):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-801c-8816-ec7c3ebac012" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nfs-common
+mkdir -p /mnt/home
+mount 192.168.2.10:/data /mnt/home
+echo &quot;192.168.2.10:/data /mnt/home nfs defaults 0 0&quot; &gt;&gt; /etc/fstab</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-80d5-ba34-e5279c8c6f5d"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80d7-9ae4-c14d392180c7" class=""><strong>7️⃣ HTTPS ВЕБ-СЕРВЕРЫ</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80e6-b90f-f7865f3c46bc" class=""><strong>Получить сертификат (на MAIN-DC1):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-809d-a8d0-ccaf70d5cce4" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kinit admin
+ipa-getcert request -K HTTP/www.reaskills.cyber -k /tmp/www.key -f /tmp/www.crt -D www.reaskills.cyber</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-808d-8d1c-e23bd2d16907" class=""><strong>Nginx с HTTPS:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-802c-9773-d50d57e82081" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nginx
+
+cat &gt; /etc/nginx/sites-available/default &lt;&lt; &#x27;EOF&#x27;
+server {
+    listen 443 ssl;
+    server_name www.reaskills.cyber;
+    
+    ssl_certificate /etc/nginx/www.crt;
+    ssl_certificate_key /etc/nginx/www.key;
+    
+    root /data_saver;
+    autoindex on;
+}
+EOF
+
+systemctl restart nginx</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,53 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>NFTABLES</title></head><body><article id="3065e03f-0cac-8094-90fc-dee74161e3fc" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🛡️</span></div><h1 class="page-title" dir="auto"><strong>NFTABLES</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8084-b843-c9c8666f7825" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">✅ Разрешаем только нужные порты (SSH, HTTP, VPN)
+✅ Блокируем всё остальное
+✅ Ограничиваем количество пакетов (защита от DDoS)</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8019-9ca5-ce215abd908c"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8049-9209-d13f443e9541" class=""><strong>1. PAT/NAT (для выхода в интернет)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8042-bc68-e7965073a5d5" class=""><strong>ЧТО ЭТО:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8037-ab3f-f9049b8e736c" class="bulleted-list"><li style="list-style-type:disc">Серверы в локальной сети (192.168.x.x) не видны из интернета</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8044-887e-d70a386bad36" class="bulleted-list"><li style="list-style-type:disc">NAT переводит их адреса в публичный IP роутера</li></ul></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8023-963e-fafcdd7315e1" class=""><strong>КОМАНДА:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-809c-bc7e-f913043d1d46" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nftables
+
+nft add table ip nat
+nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }
+nft add rule ip nat postrouting oifname &quot;eth0&quot; masquerade</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80cc-9dd1-e7a969150cd9" class=""><strong>ЧТО ЭТО ДЕЛАЕТ:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-805e-99aa-f119f81c23c1" class="bulleted-list"><li style="list-style-type:disc">Все пакеты, выходящие через <code>eth0</code> (внешний интерфейс), меняют IP на IP роутера</li></ul></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-809a-8f21-e865f2a43409"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80c5-b998-eee3f933496a" class=""><strong>2. RATE LIMIT (не больше 100 пакетов/сек)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8001-9ad3-dd2c35f78f21" class=""><strong>ЗАЧЕМ:</strong> Защита от DDoS (когда хакер отправляет миллионы пакетов).</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8063-ab20-fa7dee71e222" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">nft add table inet filter
+nft add chain inet filter input { type filter hook input priority 0 \; policy drop \; }
+nft add rule inet filter input ct state established,related accept
+nft add rule inet filter input iif lo accept
+nft add rule inet filter input tcp dport 22 accept
+nft add rule inet filter input limit rate 100/second accept
+nft add rule inet filter input drop</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8047-a580-dcae95fb2e90" class=""><strong>ЧТО ЭТО ЗНАЧИТ:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8068-8172-c5dc35621ebf" class="bulleted-list"><li style="list-style-type:disc"><code>policy drop</code> → по умолчанию всё запрещено</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8071-8e40-ea729b6eec7f" class="bulleted-list"><li style="list-style-type:disc"><code>ct state established,related accept</code> → разрешить существующие соединения</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-803e-978f-dd47d8399235" class="bulleted-list"><li style="list-style-type:disc"><code>tcp dport 22 accept</code> → разрешить SSH</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80e3-a2d2-cebd922dd074" class="bulleted-list"><li style="list-style-type:disc"><code>limit rate 100/second</code> → не больше 100 пакетов в секунду</li></ul></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8004-8516-e52fd196a163" class=""><strong>Сохранить правила:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8067-b598-c9ae246eb7c0" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">nft list ruleset &gt; /etc/nftables.conf
+systemctl enable nftables</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

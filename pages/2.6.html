@@ -1,0 +1,62 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>NFS (ОБЩИЕ ПАПКИ)</title></head><body><article id="3065e03f-0cac-8022-9285-d7a85ea72216" class="page sans"><header><div class="page-header-icon undefined"><img class="icon notion-static-icon" src="https://www.notion.so/icons/folder_yellow.svg"/></div><h1 class="page-title" dir="auto"><strong>NFS (ОБЩИЕ ПАПКИ)</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80a6-b72a-fb0ae99401ba" class=""><strong>Представь:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80c7-989f-d43087020277" class="bulleted-list"><li style="list-style-type:disc">Пользователь входит на PC1</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8092-9201-ea2bdcb1c441" class="bulleted-list"><li style="list-style-type:disc">Его файлы должны храниться на сервере MAIN-STORAGE (не на PC1)</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80ff-bba5-feaf59c6397f" class="bulleted-list"><li style="list-style-type:disc">Когда он зайдёт с другого компьютера → его файлы там же</li></ul></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-800e-814a-d78c5c99c441" class=""><strong>НА MAIN-STORAGE (СЕРВЕР):</strong></h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80c3-88a2-c11d1f39e360" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Установить NFS сервер
+apt install -y nfs-kernel-server
+
+# Создать папку
+mkdir -p /data
+chmod 777 /data
+
+# Разрешить доступ клиентам
+echo &quot;/data 192.168.3.0/24(rw,sync,no_root_squash)&quot; &gt;&gt; /etc/exports
+
+# Применить
+exportfs -ra
+systemctl restart nfs-kernel-server</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8024-ac2b-d5f3c6558374" class=""><strong>ЧТО ЭТО ЗНАЧИТ:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8024-a6e0-d75d9e322df0" class="bulleted-list"><li style="list-style-type:disc"><code>/data</code> → папка, которую шарим</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-803d-a7ec-dbab129bc59d" class="bulleted-list"><li style="list-style-type:disc"><code>192.168.3.0/24</code> → кому разрешаем (подсеть PC1)</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-8080-8d17-ccf4b51b2d41" class="bulleted-list"><li style="list-style-type:disc"><code>rw</code> → read/write (читать и писать)</li></ul></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8095-9044-dca527684cb0"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-808c-92e2-e18ddccca239" class=""><strong>НА PC1 (КЛИЕНТ):</strong></h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80f3-8485-ca87a3efb782" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Установить NFS клиент
+apt install -y nfs-common
+
+# Создать точку монтирования
+mkdir -p /mnt/home
+
+# Примонтировать
+mount 192.168.2.10:/data /mnt/home
+
+# Автомонтирование при загрузке
+echo &quot;192.168.2.10:/data /mnt/home nfs defaults 0 0&quot; &gt;&gt; /etc/fstab</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8039-8694-c0ec636c0cb8" class=""><strong>Проверить:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8052-8307-fe8e20cf397e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">df -h | grep /mnt/home</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80fe-a591-f9366d144f0e" class=""><strong>Должно показать примонтированную папку.</strong></p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

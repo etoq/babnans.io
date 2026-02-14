@@ -1,0 +1,82 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>OSPF (ДИНАМИЧЕСКАЯ МАРШРУТИЗАЦИЯ)</title></head><body><article id="3065e03f-0cac-8091-938a-d7bc832b03d1" class="page sans"><header><div class="page-header-icon undefined"><img class="icon notion-static-icon" src="https://www.notion.so/icons/network_blue.svg"/></div><h1 class="page-title" dir="auto"><strong>OSPF (ДИНАМИЧЕСКАЯ МАРШРУТИЗАЦИЯ)</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-802e-a0fa-cd7afccfa54c" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">COD-RTR знает: 10.10.10.0/24, 10.10.20.0/24
+MAIN-RTR знает: 192.168.1.0/24, 192.168.2.0/24, 192.168.3.0/24
+
+❌ Они НЕ ЗНАЮТ о сетях друг друга
+❌ Пакеты не идут между сетями</code></pre></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80bd-8e37-d044e8dfec24" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">COD-RTR говорит MAIN-RTR: &quot;У меня есть 10.10.10.0 и 10.10.20.0&quot;
+MAIN-RTR говорит COD-RTR: &quot;У меня есть 192.168.1.0, 192.168.2.0, 192.168.3.0&quot;
+
+✅ Теперь они знают все сети
+✅ Пакеты идут между ЦОД и Офисом</code></pre></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-80f4-9466-d9d3f312c895" class=""><strong>КАК НАСТРОИТЬ OSPF?</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80fd-80b2-cd3cf59127a4" class=""><strong>Установить FRRouting (программа для OSPF):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8068-8506-e7a405e6ee67" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt update
+apt install -y frr</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8076-8492-c81390f6af18" class=""><strong>Включить OSPF в настройках:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8059-9bea-d10c1e91ec93" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">nano /etc/frr/daemons</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8034-b109-f1d74af3753e" class=""><strong>НАЙДИ И ИЗМЕНИ:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8038-a2f8-f2bb74a3a2a2" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ospfd=yes</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8064-8779-e267cd9d7b36" class=""><strong>Настроить OSPF:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8010-89c1-e8334ce8ebfe" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">vtysh</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-809f-a54e-fa269b493ee5" class=""><strong>ЭТО ОТКРОЕТ КОНСОЛЬ FRR. ВВОДИ КОМАНДЫ:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8081-9b45-d28290e11b04" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">configure terminal
+
+router ospf
+  ospf router-id 1.1.1.1
+  network 10.8.0.0/24 area 0
+  network 10.10.10.0/24 area 0
+  network 10.10.20.0/24 area 0
+  exit
+
+interface tun0
+  ip ospf authentication message-digest
+  ip ospf message-digest-key 1 md5 secret_key
+  exit
+
+exit
+write memory
+exit</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8011-9c8d-cfa2f3f05c6d" class=""><strong>ЧТО ЭТО ЗНАЧИТ:</strong></p></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80ef-9805-e066feccf42f" class="bulleted-list"><li style="list-style-type:disc"><code>router-id 1.1.1.1</code> → уникальный ID роутера</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80be-80c7-d46b874c7ab2" class="bulleted-list"><li style="list-style-type:disc"><code>network 10.8.0.0/24 area 0</code> → анонсировать эту сеть в OSPF</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-802d-a638-e7a5c5ae66cd" class="bulleted-list"><li style="list-style-type:disc"><code>authentication message-digest</code> → защита паролем</li></ul></div><div style="display:contents" dir="auto"><ul id="3065e03f-0cac-80a2-bea3-d10def9c99a2" class="bulleted-list"><li style="list-style-type:disc"><code>md5 secret_key</code> → пароль для OSPF</li></ul></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-803d-b69a-c06ff6ac04e5" class=""><strong>Перезапустить:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8055-9eb2-d473c4a015a6" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">systemctl restart frr</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-808a-b6ae-e63d0a97c0d5" class=""><strong>Проверить, что работает:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80fc-b5e7-f77862070d13" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">vtysh -c &quot;show ip ospf neighbor&quot;</code></pre></div><div style="display:contents" dir="auto"><h1 id="3065e03f-0cac-8063-ac74-e79fe90ad3a1" class=""><strong>МОНИТОРИНГ OSPF</strong></h1></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8038-8769-d80d4edc8171" class=""><strong>ЗАДАЧА:</strong></p></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ac-9c0d-c9546db2ac99" class="">Логировать изменения маршрутов в <code>/var/log/router_change.log</code> и уведомлять в активные сессии.</p></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-8041-a7f4-e29980898908"/></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-804e-a807-cd936b8d8092" class=""><strong>Создать скрипт мониторинга:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80da-927c-cd1ac35feb8c" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># На COD-RTR и MAIN-RTR
+nano /usr/local/bin/ospf-monitor.sh</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80fd-8592-dcf67cf21ccc" class=""><strong>Вставь:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8003-a21c-ea7e4df1d883" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#!/bin/bash
+
+LOGFILE=&quot;/var/log/router_change.log&quot;
+PREV_ROUTES=&quot;/tmp/ospf_routes_prev&quot;
+CURR_ROUTES=&quot;/tmp/ospf_routes_curr&quot;
+
+vtysh -c &quot;show ip route ospf&quot; &gt; $CURR_ROUTES
+
+if [ -f $PREV_ROUTES ]; then
+  if ! diff -q $PREV_ROUTES $CURR_ROUTES &gt; /dev/null; then
+    echo &quot;$(date): OSPF routes changed&quot; &gt;&gt; $LOGFILE
+    diff $PREV_ROUTES $CURR_ROUTES &gt;&gt; $LOGFILE
+    wall &quot;OSPF routes have changed! Check $LOGFILE&quot;
+  fi
+fi
+
+cp $CURR_ROUTES $PREV_ROUTES</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ab-a2b0-db0c8a295abd" class=""><strong>Сделать исполняемым:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8081-8a1c-f9e172ab2021" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">chmod +x /usr/local/bin/ospf-monitor.sh</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8059-a633-d9f637a8b791" class=""><strong>Добавить в cron (каждую минуту):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8014-b640-e4d25f5dde30" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">crontab -e</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-806d-8cf9-d2d42c20e1ae" class=""><strong>Добавь:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-803e-af1e-dd65ae0655a4" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">* * * * * /usr/local/bin/ospf-monitor.sh</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

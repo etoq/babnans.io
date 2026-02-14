@@ -1,0 +1,270 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>2</title></head><body><article id="3075e03f-0cac-80ab-a775-d5abc9e60a2e" class="page sans"><header><h1 class="page-title" dir="auto">2</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-8123-8d3f-d3297ed23bac" class="">1. SSH Hardening</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8145-8e6d-d81f3c9342fc" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">useradd -m -s /bin/bash sshuser
+echo &quot;sshuser:P@ssw0rd&quot; | chpasswd
+echo &quot;PermitRootLogin no&quot; &gt;&gt; /etc/ssh/sshd_config
+echo &quot;AllowUsers sshuser&quot; &gt;&gt; /etc/ssh/sshd_config
+systemctl restart sshd
+
+apt install -y fail2ban
+cat &gt; /etc/fail2ban/jail.local &lt;&lt; &#x27;ENDCONF&#x27;
+[DEFAULT]
+bantime = 1m
+maxretry = 2
+[sshd]
+enabled = true
+ENDCONF
+systemctl enable fail2ban
+systemctl restart fail2ban
+
+apt install -y auditd
+nano /etc/audit/rules.d/ssh.rules
+
+-w /usr/sbin/sshd -p x -k ssh_exec
+-w /etc/ssh/sshd_config -p wa -k ssh_config
+systemctl restart auditd</code></pre></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-81f0-8f50-c15e8b9ae5ff" class="">fail2ban-client status sshd<br/>ausearch -k ssh_exec</p></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-8112-a391-ead5ee3eb268" class="">2. FreeIPA: Пользователи</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81f4-9220-e755b5fe2ab0" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo apt install -y freeipa-server freeipa-server-dns
+sudo ipa-server-install --domain=reaskills.cyber --realm=REASKILLS.CYBER --setup-dns --forwarder=8.8.8.8
+
+kinit admin
+
+ipa group-add Administrators
+ipa group-add Worker
+ipa group-add TopManager
+
+nano ~/create_users.sh
+
+#!/bin/bash
+
+for i in {1..40}; do
+  echo -e &quot;P@ssw0rdAdmin\nP@ssw0rdAdmin&quot; | ipa user-add user$i --first=User --last=$i --email=user$i@reaskills.cyber --password 2&gt;/dev/null
+  ipa group-add-member Administrators --users=user$i 2&gt;/dev/null
+done
+
+for i in {41..80}; do
+  echo -e &quot;P@ssw0rdWorker\nP@ssw0rdWorker&quot; | ipa user-add user$i --first=User --last=$i --email=user$i@reaskills.cyber --password 2&gt;/dev/null
+  ipa group-add-member Worker --users=user$i 2&gt;/dev/null
+done
+
+for i in {100..130}; do
+  echo -e &quot;P@ssw0rdTop\nP@ssw0rdTop&quot; | ipa user-add superuser$i --first=SuperUser --last=$i --email=superuser$i@reaskills.cyber --password 2&gt;/dev/null
+  ipa group-add-member TopManager --users=superuser$i 2&gt;/dev/null
+done
+
+chmod +x ~/create_users.sh
+kinit admin
+./create_users.sh</code></pre></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-8176-9b0b-e5749e19701f" class="">ipa group-find<br/>ipa group-show Administrators</p></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-815c-9712-eacdc595b3e9" class="">3. FreeIPA: Политика</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8138-82b4-eece3908ff65" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ipa pwpolicy-mod \
+  --minlength=10 \
+  --minclasses=3 \
+  --history=4 \
+  --maxlife=31 \
+  --lockouttime=900 \
+  --maxfail=3
+
+echo -e &quot;Pa\$\$w0rd2026-2027\nPa\$\$w0rd2026-2027&quot; | ipa user-add petya --first=Petya --last=Petrov --password
+ipa user-mod petya --principal-expiration=20260515000000Z</code></pre></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-81e4-b8f5-da0ac4830f17" class="">ipa user-show petya<br/>ipa pwpolicy-show</p></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-8136-a88a-f424b99731a8" class="">4. FreeIPA: Backup</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81f5-87bc-d97fbf8b3b81" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo nano /usr/local/bin/freeipa-backup.sh
+
+#!/bin/bash
+
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE=&quot;/mnt/backup-user.backup&quot;
+PASSWORD=&quot;BackupPa\$\$&quot;
+
+ldapsearch -x -D &quot;cn=Directory Manager&quot; -w &quot;$(cat /root/dm_password)&quot; -b &quot;dc=reaskills,dc=cyber&quot; -LLL &gt; /tmp/ldap_$DATE.ldif
+tar -czf /tmp/ldap_$DATE.tar.gz /tmp/ldap_$DATE.ldif
+openssl enc -aes-256-cbc -salt -pbkdf2 -in /tmp/ldap_$DATE.tar.gz -out $BACKUP_FILE -pass pass:&quot;$PASSWORD&quot;
+rm -f /tmp/ldap_$DATE.ldif /tmp/ldap_$DATE.tar.gz
+
+sudo chmod +x /usr/local/bin/freeipa-backup.sh
+sudo crontab -e
+0 2 * * * /usr/local/bin/freeipa-backup.sh
+sudo /usr/local/bin/freeipa-backup.sh
+
+nano ~/backup-restore-instructions.txt
+
+=== КАК ВОССТАНОВИТЬ BACKUP ===
+
+1. Расшифровать архив:
+   openssl enc -aes-256-cbc -d -in /mnt/backup-user.backup -out backup.tar.gz -k &quot;BackupPa$$&quot;
+
+2. Распаковать:
+   tar -xzf backup.tar.gz
+
+3. Восстановить:
+   ipa-restore --data --online ipa-backup-YYYYMMDD
+
+Пароль архива: BackupPa$$</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-81ae-8a32-c7676447c086" class="">5. XRDP (УДАЛЁННЫЙ РАБОЧИЙ СТОЛ)</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8124-a09b-fba9bc5e5bbc" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># На PC1:
+sudo apt install -y xrdp
+sudo nano /etc/security/access.conf
+
++:@Administrators:ALL
++:@worker:LOCAL
+-:ALL:ALL
+
+# На PC1:
+sudo nano /etc/rsyslog.d/xrdp.conf
+if $programname == &#x27;xrdp&#x27; or $programname == &#x27;xrdp-sesman&#x27; then @@192.168.1.10:514&amp; stop
+
+# На MAIN-DC1 РАСКОММЕНТИРУЙ:
+module(load=&quot;imudp&quot;)
+input(type=&quot;imudp&quot; port=&quot;514&quot;)
+sudo systemctl restart rsyslog</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-812e-a169-ccebd3d0a2f0" class="">6. OpenVPN</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8105-bed0-e08af87863d7" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y openvpn easy-rsa
+
+# Создать сертификаты
+make-cadir ~/openvpn-ca
+cd ~/openvpn-ca
+./easyrsa init-pki
+./easyrsa build-ca nopass
+./easyrsa gen-req server nopass
+./easyrsa sign-req server server
+./easyrsa gen-dh
+openvpn --genkey secret ta.key
+
+# Конфиг сервера
+cat &gt; /etc/openvpn/server.conf &lt;&lt; &#x27;ENDCONF&#x27;
+port 1194
+proto udp
+dev tun
+ca /root/openvpn-ca/pki/ca.crt
+cert /root/openvpn-ca/pki/issued/server.crt
+key /root/openvpn-ca/pki/private/server.key
+dh /root/openvpn-ca/pki/dh.pem
+tls-auth /root/openvpn-ca/ta.key 0
+server 10.8.0.0 255.255.255.0
+push &quot;route 10.10.10.0 255.255.255.0&quot;
+push &quot;route 10.10.20.0 255.255.255.0&quot;
+cipher AES-256-GCM
+persist-key
+persist-tun
+ENDCONF
+
+systemctl enable openvpn@server
+systemctl start openvpn@server</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-81f6-80c7-eadf3ff8f351" class="">7. Wireguard</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81fb-ac12-cc8cfde43dd5" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y wireguard
+cd /etc/wireguard
+
+# Генерация ключей
+wg genkey | tee private.key | wg pubkey &gt; public.key
+
+# Показать публичный ключ (скопируй его!)
+cat public.key
+
+# Конфиг
+cat &gt; /etc/wireguard/wg0.conf &lt;&lt; &#x27;ENDCONF&#x27;
+[Interface]
+Address = 10.9.0.1/24
+ListenPort = 51820
+PrivateKey = ВСТАВЬ_СОДЕРЖИМОЕ_private.key
+
+[Peer]
+PublicKey = ВСТАВЬ_client_public.key
+AllowedIPs = 10.9.0.2/32
+ENDCONF
+
+# Подставить ключ автоматически
+sed -i &quot;s|ВСТАВЬ_СОДЕРЖИМОЕ_private.key|$(cat private.key)|&quot; /etc/wireguard/wg0.conf
+
+systemctl enable wg-quick@wg0
+systemctl start wg-quick@wg0</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-81cd-a521-ce0ea3f76d6c" class="">7. OSPF</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-8184-80ee-dca6e44f617c" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y frr
+sed -i &#x27;s/ospfd=no/ospfd=yes/&#x27; /etc/frr/daemons
+
+# Настроить через vtysh
+vtysh &lt;&lt; &#x27;ENDCONF&#x27;
+configure terminal
+router ospf
+ ospf router-id 1.1.1.1
+ network 10.8.0.0/24 area 0
+ network 10.10.10.0/24 area 0
+ exit
+interface tun0
+ ip ospf authentication message-digest
+ ip ospf message-digest-key 1 md5 secret_key
+ exit
+exit
+write memory
+ENDCONF
+
+systemctl restart frr</code></pre></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-8108-b519-c1da4d395a84" class="">vtysh -c “show ip ospf neighbor”</p></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-8172-a7cd-eb129054e1f1" class="">8. NFTables NAT</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81e6-a3b4-c8f01c34cb22" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nftables
+
+# NAT
+nft add table ip nat
+nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }
+nft add rule ip nat postrouting oifname &quot;eth0&quot; masquerade
+
+# Файрвол с rate limit
+nft add table inet filter
+nft add chain inet filter input { type filter hook input priority 0 \; policy drop \; }
+nft add rule inet filter input ct state established,related accept
+nft add rule inet filter input iif lo accept
+nft add rule inet filter input tcp dport 22 accept
+nft add rule inet filter input limit rate 100/second accept
+
+# Сохранить
+nft list ruleset &gt; /etc/nftables.conf
+systemctl enable nftables</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-816b-b6fc-ebb3f9267af9" class="">9. NFS</h2></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-81a9-8e6e-e163d68d26d7" class="">На сервере (MAIN-STORAGE):</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81c6-8385-c70b6d2fa474" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nfs-kernel-server
+mkdir -p /data
+chmod 777 /data
+echo &quot;/data 192.168.3.0/24(rw,sync,no_root_squash)&quot; &gt;&gt; /etc/exports
+exportfs -ra
+systemctl restart nfs-kernel-server</code></pre></div><div style="display:contents" dir="auto"><p id="3075e03f-0cac-81c3-bcda-fbdb935eff7f" class="">На клиенте (PC1):</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-81c7-8db0-c96b02192dc7" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nfs-common
+mkdir -p /mnt/home
+mount 192.168.2.10:/data /mnt/home
+echo &quot;192.168.2.10:/data /mnt/home nfs defaults 0 0&quot; &gt;&gt; /etc/fstab</code></pre></div><div style="display:contents" dir="auto"><h2 id="3075e03f-0cac-81c8-9ec8-fee84ff8c1e8" class="">10. Nginx HTTPS</h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3075e03f-0cac-818e-bdb0-fde524266ff4" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y nginx
+
+# Конфиг
+cat &gt; /etc/nginx/sites-available/default &lt;&lt; &#x27;ENDCONF&#x27;
+server {
+    listen 443 ssl;
+    server_name www.reaskills.cyber;
+
+    ssl_certificate /etc/nginx/www.crt;
+    ssl_certificate_key /etc/nginx/www.key;
+
+    root /data_saver;
+    autoindex on;
+    autoindex_exact_size off;
+    autoindex_localtime on;
+}
+
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+ENDCONF
+
+systemctl restart nginx</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,57 @@
+<html><head>
+
+<style>
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+}
+html {
+    background-color: #0d1117 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff !important;
+}
+a {
+    color: #58a6ff !important;
+}
+p, div, span, li, td, th {
+    color: #c9d1d9 !important;
+}
+code {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+pre {
+    background-color: #161b22 !important;
+    color: #79c0ff !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #30363d !important;
+}
+table {
+    border-color: #30363d !important;
+}
+th {
+    background-color: #161b22 !important;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>DOCKER + PRP ИНТЕРФЕЙС</title></head><body><article id="3065e03f-0cac-8000-95ae-ce0e01bd86e5" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🐳</span></div><h1 class="page-title" dir="auto"><strong>DOCKER + PRP ИНТЕРФЕЙС</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8030-bb59-c02b99996021" class=""><strong>ШАГ 1: НАСТРОИТЬ PRP (ПАРАЛЛЕЛЬНАЯ РЕЗЕРВНАЯ СЕТЬ)</strong></h2></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8081-9099-d1aa861bf05d" class=""><strong>Зачем:</strong> Объединить 2 сетевых интерфейса для отказоустойчивости.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-800c-a389-d052f02d5298" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># На COD-DOCKER
+apt install -y bridge-utils ifenslave
+
+# Создать bond интерфейс
+modprobe bonding
+
+nano /etc/network/interfaces</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-80ba-95b2-c1ce3d7e92be" class=""><strong>Добавь:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-809c-98e7-cc12119cf85e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">auto bond0
+iface bond0 inet static
+    address 10.10.20.200
+    netmask 255.255.255.0
+    bond-slaves eth1 eth2
+    bond-mode active-backup
+    bond-miimon 100</code></pre></div><div style="display:contents" dir="auto"><p id="3065e03f-0cac-8040-aa36-e1a13f9c360b" class=""><strong>Применить:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-8085-825f-c0440d60758d" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ifup bond0</code></pre></div><div style="display:contents" dir="auto"><hr id="3065e03f-0cac-801d-a7a4-dc2063367f80"/></div><div style="display:contents" dir="auto"><h2 id="3065e03f-0cac-8025-823c-c495f3353456" class=""><strong>ШАГ 2: РАЗВЕРНУТЬ DOCKER КОНТЕЙНЕР ДЛЯ ПЛК</strong></h2></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3065e03f-0cac-80fa-825c-d4cfdf2bcf7e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apt install -y docker.io
+systemctl enable docker
+systemctl start docker
+
+# Запустить тестовый контейнер
+docker run -d -p 8080:80 --name plc-server nginx</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

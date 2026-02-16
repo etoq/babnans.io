@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Техническая документация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .list {
+            list-style: none;
+        }
+        .list-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+        .list-item:hover {
+            border-color: #58a6ff;
+        }
+        .list-item a {
+            display: block;
+            padding: 16px;
+            color: inherit;
+            text-decoration: none;
+        }
+        .title {
+            color: #58a6ff;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        .meta {
+            color: #8b949e;
+            font-size: 0.85em;
+        }
+        .tag {
+            display: inline-block;
+            background: #1f6feb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-right: 5px;
+        }
+        .tag.ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Портал технической документации</h1>
+    </div>
+
+    <div class="container">
+        <ul class="list">
+            <li class="list-item">
+                <a href="M-A.html">
+                    <div class="title">Security Testing Reference</div>
+                    <div class="meta">
+                        <span class="tag">Module A</span>
+                        Web exploitation, cryptography, reverse engineering
+                    </div>
+                </a>
+            </li>
+
+            <li class="list-item">
+                <a href="M-B.html">
+                    <div class="title">Infrastructure Configuration</div>
+                    <div class="meta">
+                        <span class="tag">Module B</span>
+                        Server hardening, VPN, authentication, firewall
+                    </div>
+                </a>
+            </li>
+
+            <li class="list-item">
+                <a href="M-C.html">
+                    <div class="title">Penetration Testing Methodology</div>
+                    <div class="meta">
+                        <span class="tag">Module C</span>
+                        Reconnaissance, exploitation, post-exploitation
+                    </div>
+                </a>
+            </li>
+
+            <li class="list-item">
+                <a href="M-D.html">
+                    <div class="title">Digital Forensics Analysis</div>
+                    <div class="meta">
+                        <span class="tag">Module D</span>
+                        Memory analysis, network forensics, file recovery
+                    </div>
+                </a>
+            </li>
+
+            <li class="list-item">
+                <a href="ai-chat.html">
+                    <div class="title">🤖 AI Ассистент</div>
+                    <div class="meta">
+                        <span class="tag ai">AI Chat</span>
+                        Чат с нейросетью — OpenRouter (Gemini) & Groq (Llama)
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

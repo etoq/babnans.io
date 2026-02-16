@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Technical Documentation</title>
+    <title>AI Ассистент</title>
     <style>
         * {
             margin: 0;
@@ -14,108 +14,451 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #0d1117;
             color: #c9d1d9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .topbar {
             background: #161b22;
             border-bottom: 1px solid #21262d;
             padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #58a6ff;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(88, 166, 255, 0.1);
         }
         .topbar h1 {
             color: #c9d1d9;
             font-size: 1.2em;
             font-weight: 400;
         }
-        .container {
+        .provider-switch {
+            display: flex;
+            gap: 8px;
+            background: #21262d;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .provider-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .provider-btn.active {
+            background: #1f6feb;
+            color: white;
+        }
+        .provider-btn:hover:not(.active) {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
         }
-        .list {
-            list-style: none;
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
         }
-        .list-item {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            transition: border-color 0.2s;
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.5;
         }
-        .list-item:hover {
-            border-color: #58a6ff;
-        }
-        .list-item a {
-            display: block;
-            padding: 16px;
-            color: inherit;
-            text-decoration: none;
-        }
-        .title {
-            color: #58a6ff;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-        }
-        .meta {
-            color: #8b949e;
-            font-size: 0.85em;
-        }
-        .tag {
-            display: inline-block;
+        .message.user {
             background: #1f6feb;
             color: white;
-            padding: 2px 8px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .message.bot {
+            background: #21262d;
+            color: #c9d1d9;
+            align-self: flex-start;
+            border: 1px solid #30363d;
+        }
+        .message.loading {
+            background: #21262d;
+            color: #8b949e;
+            font-style: italic;
+            border: 1px solid #30363d;
+        }
+        .message.error {
+            background: #8b0000;
+            color: #ffcccc;
+            border: 1px solid #a00;
+        }
+        .input-area {
+            background: #161b22;
+            border: 1px solid #30363d;
             border-radius: 12px;
-            font-size: 0.75em;
-            margin-right: 5px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .char-counter {
+            font-size: 0.8em;
+            color: #8b949e;
+            text-align: right;
+        }
+        .input-area textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+        }
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        .send-btn {
+            padding: 12px 24px;
+            background: #1f6feb;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .send-btn:hover:not(:disabled) {
+            background: #1a5cd6;
+        }
+        .send-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+            color: #8b949e;
+        }
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b949e;
+        }
+        .welcome-message h2 {
+            color: #c9d1d9;
+            margin-bottom: 16px;
+            font-size: 1.8em;
+        }
+        .welcome-message p {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        .suggestion-chip {
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            color: #8b949e;
+        }
+        .suggestion-chip:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+            background: rgba(88, 166, 255, 0.05);
+        }
+        .clear-btn {
+            padding: 8px 16px;
+            background: #30363d;
+            border: none;
+            border-radius: 6px;
+            color: #8b949e;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover {
+            background: #484f58;
+            color: #c9d1d9;
         }
     </style>
 </head>
 <body>
     <div class="topbar">
-        <h1>Technical Documentation Portal</h1>
+        <div class="topbar-left">
+            <button class="back-btn" onclick="window.location.href='index.html'">← Назад</button>
+            <h1>🤖 AI Ассистент</h1>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="clear-btn" id="clearBtn">🗑️ Очистить чат</button>
+            <div class="provider-switch">
+                <button class="provider-btn active" data-provider="openrouter">OpenRouter (Gemini)</button>
+                <button class="provider-btn" data-provider="groq">Groq (Llama)</button>
+            </div>
+        </div>
     </div>
-    
-    <div class="container">
-        <ul class="list">
-            <li class="list-item">
-                <a href="M-A.html">
-                    <div class="title">Security Testing Reference</div>
-                    <div class="meta">
-                        <span class="tag">Module A</span>
-                        Web exploitation, cryptography, reverse engineering
-                    </div>
-                </a>
-            </li>
-            
-            <li class="list-item">
-                <a href="M-B.html">
-                    <div class="title">Infrastructure Configuration</div>
-                    <div class="meta">
-                        <span class="tag">Module B</span>
-                        Server hardening, VPN, authentication, firewall
-                    </div>
-                </a>
-            </li>
-            
-            <li class="list-item">
-                <a href="M-C.html">
-                    <div class="title">Penetration Testing Methodology</div>
-                    <div class="meta">
-                        <span class="tag">Module C</span>
-                        Reconnaissance, exploitation, post-exploitation
-                    </div>
-                </a>
-            </li>
-            
-            <li class="list-item">
-                <a href="M-D.html">
-                    <div class="title">Digital Forensics Analysis</div>
-                    <div class="meta">
-                        <span class="tag">Module D</span>
-                        Memory analysis, network forensics, file recovery
-                    </div>
-                </a>
-            </li>
-        </ul>
+
+    <div class="chat-container">
+        <div class="messages-area" id="messagesArea">
+            <div class="welcome-message">
+                <h2>👋 Привет! Я AI-ассистент</h2>
+                <p>Могу помочь с вопросами по программированию, кибербезопасности, пентестингу и многому другому.</p>
+                <p>Выбери провайдера выше и задай любой вопрос!</p>
+                <div class="suggestions">
+                    <div class="suggestion-chip" data-text="Как работает SQL injection?">💉 SQL injection</div>
+                    <div class="suggestion-chip" data-text="Объясни XSS атаки">🔒 XSS атаки</div>
+                    <div class="suggestion-chip" data-text="Как настроить VPN на Linux?">🐧 VPN на Linux</div>
+                    <div class="suggestion-chip" data-text="Что такое reverse shell?">🐚 Reverse shell</div>
+                    <div class="suggestion-chip" data-text="Объясни OSINT методологию">🔍 OSINT</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Напиши свой вопрос..." 
+                    rows="1"
+                    maxlength="4000"
+                ></textarea>
+                <div class="char-counter" id="charCounter">0 / 4000</div>
+            </div>
+            <button class="send-btn" id="sendBtn">Отправить</button>
+        </div>
     </div>
-</body>
-</html>
+
+    <script>
+        // API Configuration
+        const API_KEYS = {
+            openrouter: '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',
+            groq: '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'
+        };
+        
+        const API_CONFIGS = {
+            openrouter: {
+                url: 'https://openrouter.ai/api/v1/chat/completions',
+                model: 'google/gemini-2.0-flash-exp:free',
+                headers: (key) => ({
+                    'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'AI Assistant'
+                })
+            },
+            groq: {
+                url: 'https://api.groq.com/openai/v1/chat/completions',
+                model: 'llama-3.3-70b-versatile',
+                headers: (key) => ({
+                    'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json'
+                })
+            }
+        };
+        
+        let currentProvider = 'openrouter';
+        let conversationHistory = [];
+        
+        // Elements
+        const messagesArea = document.getElementById('messagesArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const charCounter = document.getElementById('charCounter');
+        const providerBtns = document.querySelectorAll('.provider-btn');
+        const clearBtn = document.getElementById('clearBtn');
+        const suggestionChips = document.querySelectorAll('.suggestion-chip');
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            charCounter.textContent = `${this.value.length} / 4000`;
+        });
+        
+        // Provider Switch
+        providerBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                providerBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentProvider = btn.dataset.provider;
+                
+                const providerName = btn.textContent;
+                addMessage(`✅ Переключено на ${providerName}`, 'bot');
+            });
+        });
+        
+        // Clear Chat
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Очистить всю историю чата?')) {
+                messagesArea.innerHTML = `
+                    <div class="welcome-message">
+                        <h2>👋 Привет! Я AI-ассистент</h2>
+                        <p>Могу помочь с вопросами по программированию, кибербезопасности, пентестингу и многому другому.</p>
+                        <p>Выбери провайдера выше и задай любой вопрос!</p>
+                        <div class="suggestions">
+                            <div class="suggestion-chip" data-text="Как работает SQL injection?">💉 SQL injection</div>
+                            <div class="suggestion-chip" data-text="Объясни XSS атаки">🔒 XSS атаки</div>
+                            <div class="suggestion-chip" data-text="Как настроить VPN на Linux?">🐧 VPN на Linux</div>
+                            <div class="suggestion-chip" data-text="Что такое reverse shell?">🐚 Reverse shell</div>
+                            <div class="suggestion-chip" data-text="Объясни OSINT методологию">🔍 OSINT</div>
+                        </div>
+                    </div>
+                `;
+                conversationHistory = [];
+                attachSuggestionListeners();
+            }
+        });
+        
+        // Suggestion Chips
+        function attachSuggestionListeners() {
+            document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    messageInput.value = chip.dataset.text;
+                    messageInput.focus();
+                    sendMessage();
+                });
+            });
+        }
+        attachSuggestionListeners();
+        
+        // Send Message Function
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Remove welcome message if exists
+            const welcomeMsg = messagesArea.querySelector('.welcome-message');
+            if (welcomeMsg) welcomeMsg.remove();
+            
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            charCounter.textContent = '0 / 4000';
+            
+            // Add to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+            
+            // Add loading message
+            const loadingMsg = addMessage('⏳ Думаю над ответом...', 'loading');
+            sendBtn.disabled = true;
+            
+            const config = API_CONFIGS[currentProvider];
+            const apiKey = API_KEYS[currentProvider];
+            
+            try {
+                const response = await fetch(config.url, {
+                    method: 'POST',
+                    headers: config.headers(apiKey),
+                    body: JSON.stringify({
+                        model: config.model,
+                        messages: conversationHistory
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                loadingMsg.remove();
+                
+                if (data.choices && data.choices[0]) {
+                    const aiResponse = data.choices[0].message.content;
+                    addMessage(aiResponse, 'bot');
+                    
+                    // Add to conversation history
+                    conversationHistory.push({
+                        role: 'assistant',
+                        content: aiResponse
+                    });
+                } else if (data.error) {
+                    addMessage('❌ Ошибка: ' + data.error.message, 'error');
+                } else {
+                    addMessage('❌ Ошибка: не удалось получить ответ', 'error');
+                }
+            }  () {
+                .();
+                ('❌ Ошибка соединения: ' + ., );
+            }  {
+                . = ;
+                .();
+            }
+        }
+        
+        
+         (, ) {
+              = .();
+            . = ${}`;
+            . = ;
+            .();
+            . = .;
+             ;
+        }
+        
+        
+        .(, );
+        
+        .(, () => {
+             (. ===  && !.) {
+                .();
+                ();
+            }
+        });
+        
+        
+        .();
+    </>
+</>
+</>
